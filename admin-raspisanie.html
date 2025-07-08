@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель Администратора - Расписание 2.0</title>
+    <title>Панель Администратора - Расписание 3.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
         /* --- Глобальные стили и переменные --- */
         :root {
             --bg-color: #f0f2f5;
-            --container-bg: rgba(255, 255, 255, 0.6);
+            --container-bg: rgba(255, 255, 255, 0.65);
             --primary-color: #007AFF;
             --primary-hover: #0056b3;
             --success-color: #34C759;
@@ -19,19 +19,21 @@
             --danger-color: #FF3B30;
             --danger-hover: #c82333;
             --text-color: #1d1d1f;
+            --text-secondary: #6e6e73;
             --border-color: rgba(0, 0, 0, 0.1);
-            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-            --border-radius: 16px;
+            --shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.12);
+            --border-radius: 18px;
             --font-family: 'Inter', sans-serif;
+            --transition-main: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         body {
             font-family: var(--font-family);
             background-color: var(--bg-color);
-            background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            background-image: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 24px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -41,15 +43,15 @@
         /* --- Контейнер --- */
         #admin-container {
             background: var(--container-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 40px;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             border: 1px solid var(--border-color);
             width: 100%;
             max-width: 900px;
-            transition: all 0.3s ease;
+            transition: var(--transition-main);
         }
 
         /* --- Типографика --- */
@@ -60,14 +62,15 @@
 
         h1 {
             color: var(--text-color);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 2.4rem;
+            margin-bottom: 8px;
         }
 
         h2 {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-            margin-bottom: 30px;
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 35px;
         }
 
         /* --- Формы и контролы --- */
@@ -83,28 +86,43 @@
             gap: 20px;
         }
 
+        .form-group {
+            position: relative;
+        }
+
         label {
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             display: block;
             font-size: 0.9rem;
         }
 
         select, input[type="text"] {
-            padding: 15px;
+            padding: 15px 18px;
             border: 1px solid var(--border-color);
             border-radius: 12px;
             font-size: 16px;
             width: 100%;
             box-sizing: border-box;
-            background-color: rgba(255, 255, 255, 0.8);
-            transition: all 0.2s ease;
+            background-color: rgba(255, 255, 255, 0.9);
+            transition: var(--transition-main);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .form-group .select-icon {
+            position: absolute;
+            right: 15px;
+            top: 45px;
+            pointer-events: none;
+            color: var(--text-secondary);
         }
         
         select:focus, input[type="text"]:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
+            background-color: #fff;
         }
 
         /* --- Кнопки --- */
@@ -115,104 +133,165 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition-main);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            letter-spacing: 0.5px;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
-        #add-class-btn, #save-schedule-btn {
-            color: white;
+        button svg {
+            width: 20px;
+            height: 20px;
         }
-        
+
+        #add-class-btn, #save-schedule-btn { color: white; }
         #add-class-btn { background-color: var(--success-color); }
         #add-class-btn:hover { background-color: var(--success-hover); }
-        
         #save-schedule-btn { background-color: var(--primary-color); }
         #save-schedule-btn:hover { background-color: var(--primary-hover); }
 
         .remove-class-btn {
-            background-color: var(--danger-color);
-            color: white;
-            padding: 10px 14px;
-            font-size: 1rem;
+            background-color: transparent;
+            color: var(--danger-color);
+            padding: 0;
             width: 44px;
             height: 44px;
+            border-radius: 50%;
         }
-        .remove-class-btn:hover { background-color: var(--danger-hover); }
+        .remove-class-btn:hover { 
+            background-color: rgba(255, 59, 48, 0.1);
+            transform: none;
+            box-shadow: none;
+        }
 
         /* --- Записи занятий --- */
         #class-entries {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
+            min-height: 100px;
         }
         
         .class-entry {
             display: grid;
-            grid-template-columns: 1.2fr 1fr 2fr 0.2fr;
+            grid-template-columns: 1.2fr 1fr 2fr auto;
             gap: 15px;
             align-items: center;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 14px;
             border: 1px solid var(--border-color);
             animation: fadeIn 0.5s ease;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- Загрузчик и уведомления --- */
-        #loader {
+        .class-entry-placeholder {
             text-align: center;
-            padding: 30px;
-            font-size: 18px;
-            color: var(--primary-color);
-            display: none;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-style: italic;
         }
         
-        .toast {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* --- Skeleton Loader --- */
+        .skeleton {
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .skeleton-entry {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 2fr auto;
+            gap: 15px;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .skeleton-entry .skeleton {
+            height: 50px;
+        }
+        
+        .skeleton-entry .skeleton-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* --- Toast-уведомления --- */
+        #toast-container {
             position: fixed;
             top: 20px;
             right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .toast {
             background-color: var(--primary-color);
             color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
+            padding: 16px 25px;
+            border-radius: 12px;
             box-shadow: var(--shadow);
-            z-index: 1000;
             opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateX(100%);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
         .toast.show {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(0);
         }
         .toast.success { background-color: var(--success-color); }
         .toast.error { background-color: var(--danger-color); }
+        .toast svg { width: 22px; height: 22px; }
 
         /* --- Адаптивность --- */
         @media (max-width: 768px) {
             h1 { font-size: 2rem; }
-            h2 { font-size: 1.2rem; }
+            h2 { font-size: 1.15rem; }
             #admin-container { padding: 20px; }
             
             .controls-grid { grid-template-columns: 1fr; }
             
             .class-entry {
                 grid-template-columns: 1fr;
+                padding: 20px;
             }
+
+            .class-entry .remove-class-btn {
+                margin-top: 10px;
+                width: 100%;
+                border-radius: 12px;
+            }
+
+            .skeleton-entry { grid-template-columns: 1fr; }
+            .skeleton-entry .skeleton-btn { width: 100%; height: 44px; border-radius: 12px; }
         }
     </style>
 </head>
@@ -233,6 +312,7 @@
                         <option value="guruh5">1-40010108B</option>
                         <option value="guruh6">1-40010108</option>
                     </select>
+                    <span class="select-icon"></span>
                 </div>
 
                 <div class="form-group">
@@ -245,21 +325,23 @@
                         <option value="Ҷумъа">Ҷумъа</option>
                         <option value="Шанбе">Шанбе</option>
                     </select>
+                     <span class="select-icon"></span>
                 </div>
             </div>
 
-            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 10px 0;">
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0;">
 
-            <div id="loader">Загрузка... ⏳</div>
             <div id="class-entries">
                 </div>
             
             <div class="actions" style="display: flex; gap: 15px; flex-wrap: wrap;">
-                 <button type="button" id="add-class-btn" style="flex-grow: 1;">➕ Добавить Занятие</button>
-                 <button type="submit" id="save-schedule-btn" style="flex-grow: 1;">💾 Сохранить Расписание</button>
+                 <button type="button" id="add-class-btn" style="flex-grow: 1;"></button>
+                 <button type="submit" id="save-schedule-btn" style="flex-grow: 1;"></button>
             </div>
         </form>
     </div>
+    
+    <div id="toast-container"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -270,7 +352,7 @@
             apiKey: "AIzaSyCJy3eKFL23mIOVM2ruEdVhI1mIVsIp6cU", // ЗАМЕНИТЕ НА СВОЙ КЛЮЧ
             authDomain: "university-chat-15114.firebaseapp.com",
             projectId: "university-chat-15114",
-            storageBucket: "university-chat-15114.appspot.com", // исправлено .firebasestorage. -> .appspot.
+            storageBucket: "university-chat-15114.appspot.com",
             messagingSenderId: "109943351862",
             appId: "1:109943351862:web:57cbecba075494a1f5c697",
             measurementId: "G-44LH6764ET"
@@ -282,12 +364,23 @@
         }
         const db = firebase.firestore();
 
+        // --- SVG ИКОНКИ ---
+        const ICONS = {
+            plus: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>`,
+            save: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>`,
+            trash: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`,
+            chevronDown: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>`,
+            checkCircle: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+            errorCircle: `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
+        };
+
         // --- DOM ЭЛЕМЕНТЫ ---
         const groupSelect = document.getElementById('group-select');
         const daySelect = document.getElementById('day-select');
         const classEntries = document.getElementById('class-entries');
         const addClassBtn = document.getElementById('add-class-btn');
-        const loader = document.getElementById('loader');
+        const saveScheduleBtn = document.getElementById('save-schedule-btn');
+        const toastContainer = document.getElementById('toast-container');
 
         // --- ПРЕДУСТАНОВЛЕННЫЕ ВРЕМЕННЫЕ СЛОТЫ ---
         const timeSlots = [
@@ -300,8 +393,9 @@
         const showToast = (message, type = 'success') => {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
+            const icon = type === 'success' ? ICONS.checkCircle : ICONS.errorCircle;
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            toastContainer.appendChild(toast);
             
             setTimeout(() => {
                 toast.classList.add('show');
@@ -309,8 +403,8 @@
 
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+                setTimeout(() => toast.remove(), 500);
+            }, 3500);
         };
 
         // --- ДОБАВЛЕНИЕ НОВОГО ЗАНЯТИЯ ---
@@ -323,38 +417,63 @@
             ).join('');
 
             entryDiv.innerHTML = `
-                <select class="time-select">${timeOptions}</select>
+                <div class="form-group">
+                    <select class="time-select">${timeOptions}</select>
+                </div>
                 <input type="text" placeholder="Аудитория" value="${aud}">
                 <input type="text" placeholder="Предмет и Преподаватель" value="${subject}">
-                <button type="button" class="remove-class-btn">❌</button>
+                <button type="button" class="remove-class-btn">${ICONS.trash}</button>
             `;
+            const placeholder = classEntries.querySelector('.class-entry-placeholder');
+            if(placeholder) placeholder.remove();
+            
             classEntries.appendChild(entryDiv);
+        };
+
+        // --- SKELETON LOADER ---
+        const showSkeletonLoader = () => {
+            classEntries.innerHTML = ''; // Очищаем перед показом
+            const skeletonHTML = `
+                <div class="skeleton-entry">
+                    <div class="skeleton"></div>
+                    <div class="skeleton"></div>
+                    <div class="skeleton"></div>
+                    <div class="skeleton skeleton-btn"></div>
+                </div>
+            `;
+            // Показываем 3 скелетных блока
+            classEntries.innerHTML = skeletonHTML.repeat(3);
         };
 
         // --- ЗАГРУЗКА РАСПИСАНИЯ ---
         const loadSchedule = async () => {
+            showSkeletonLoader();
             const group = groupSelect.value;
             const day = daySelect.value;
-            loader.style.display = 'block';
-            classEntries.innerHTML = '';
             
             try {
                 const docRef = db.collection('schedules').doc(group);
                 const doc = await docRef.get();
+                
+                classEntries.innerHTML = ''; // Очищаем скелетоны
+
                 if (doc.exists) {
                     const data = doc.data();
                     const daySchedule = data[day];
-                    if (daySchedule && Array.isArray(daySchedule)) {
+                    if (daySchedule && Array.isArray(daySchedule) && daySchedule.length > 0) {
                         daySchedule.forEach(classInfo => {
                             addClassEntry(classInfo.time, classInfo.aud, classInfo.subject);
                         });
+                    } else {
+                        classEntries.innerHTML = `<div class="class-entry-placeholder">Для этого дня занятий не найдено. Можно добавить новые.</div>`;
                     }
+                } else {
+                     classEntries.innerHTML = `<div class="class-entry-placeholder">Расписание для этой группы еще не создано.</div>`;
                 }
             } catch (error) {
                 console.error("Ошибка загрузки расписания: ", error);
                 showToast('Не удалось загрузить расписание.', 'error');
-            } finally {
-                loader.style.display = 'none';
+                classEntries.innerHTML = `<div class="class-entry-placeholder">Ошибка загрузки данных.</div>`;
             }
         };
 
@@ -369,10 +488,10 @@
             entries.forEach(entry => {
                 const timeSelect = entry.querySelector('.time-select');
                 const inputs = entry.querySelectorAll('input');
-                const aud = inputs[0].value;
-                const subject = inputs[1].value;
+                const aud = inputs[0].value.trim();
+                const subject = inputs[1].value.trim();
                 
-                if (timeSelect.value && (aud || subject)) { // Сохраняем только если есть данные
+                if (timeSelect.value && (aud || subject)) {
                     scheduleData.push({ 
                         time: timeSelect.value, 
                         aud: aud, 
@@ -380,34 +499,54 @@
                     });
                 }
             });
+            
+            // Сортируем по времени перед сохранением
+            scheduleData.sort((a, b) => a.time.localeCompare(b.time));
 
             try {
-                // Используем Firestore batch для атомарной операции
                 const docRef = db.collection('schedules').doc(group);
                 await docRef.set({
                     [day]: scheduleData
                 }, { merge: true });
-                showToast('Расписание успешно сохранено! 🎉', 'success');
+                showToast('Расписание успешно сохранено!', 'success');
             } catch (error) {
                 console.error("Ошибка сохранения расписания: ", error);
                 showToast('Ошибка сохранения. См. консоль.', 'error');
             }
         };
+        
+        // --- ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА ---
+        const initializeUI = () => {
+            // Вставка иконок в кнопки
+            addClassBtn.innerHTML = `${ICONS.plus} Добавить Занятие`;
+            saveScheduleBtn.innerHTML = `${ICONS.save} Сохранить Расписание`;
+            
+            // Вставка иконок в селекты
+            document.querySelectorAll('.select-icon').forEach(icon => {
+                icon.innerHTML = ICONS.chevronDown;
+            });
 
-        // --- ОБРАБОТЧИКИ СОБЫТИЙ ---
-        addClassBtn.addEventListener('click', () => addClassEntry(timeSlots[0]));
+            // Назначение обработчиков
+            addClassBtn.addEventListener('click', () => addClassEntry(timeSlots[0]));
+            classEntries.addEventListener('click', (e) => {
+                const removeButton = e.target.closest('.remove-class-btn');
+                if (removeButton) {
+                    removeButton.closest('.class-entry').remove();
+                     if (classEntries.children.length === 0) {
+                        classEntries.innerHTML = `<div class="class-entry-placeholder">Для этого дня занятий не найдено. Можно добавить новые.</div>`;
+                    }
+                }
+            });
 
-        classEntries.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-class-btn')) {
-                e.target.closest('.class-entry').remove();
-            }
-        });
+            groupSelect.addEventListener('change', loadSchedule);
+            daySelect.addEventListener('change', loadSchedule);
 
-        groupSelect.addEventListener('change', loadSchedule);
-        daySelect.addEventListener('change', loadSchedule);
+            // Начальная загрузка
+            loadSchedule();
+        };
 
         // --- НАЧАЛЬНАЯ ЗАГРУЗКА ---
-        document.addEventListener('DOMContentLoaded', loadSchedule);
+        document.addEventListener('DOMContentLoaded', initializeUI);
     </script>
 </body>
 </html>
