@@ -4,7 +4,7 @@
   "description": "Панель управления для администраторов.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#f0f2f5",
+  "background_color": "#000000",
   "theme_color": "#007AFF",
   "icons": [
     {
