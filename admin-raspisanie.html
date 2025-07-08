@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель Администратора - Расписание 2.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Глобальные стили и переменные --- */
+        :root {
+            --bg-color: #f0f2f5;
+            --container-bg: rgba(255, 255, 255, 0.6);
+            --primary-color: #007AFF;
+            --primary-hover: #0056b3;
+            --success-color: #34C759;
+            --success-hover: #28a745;
+            --danger-color: #FF3B30;
+            --danger-hover: #c82333;
+            --text-color: #1d1d1f;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --border-radius: 16px;
+            --font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* --- Контейнер --- */
+        #admin-container {
+            background: var(--container-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 900px;
+            transition: all 0.3s ease;
+        }
+
+        /* --- Типографика --- */
+        h1, h2 {
+            text-align: center;
+            font-weight: 700;
+        }
+
+        h1 {
+            color: var(--text-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        /* --- Формы и контролы --- */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        select, input[type="text"] {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+        }
+        
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+        }
+
+        /* --- Кнопки --- */
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        #add-class-btn, #save-schedule-btn {
+            color: white;
+        }
+        
+        #add-class-btn { background-color: var(--success-color); }
+        #add-class-btn:hover { background-color: var(--success-hover); }
+        
+        #save-schedule-btn { background-color: var(--primary-color); }
+        #save-schedule-btn:hover { background-color: var(--primary-hover); }
+
+        .remove-class-btn {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 10px 14px;
+            font-size: 1rem;
+            width: 44px;
+            height: 44px;
+        }
+        .remove-class-btn:hover { background-color: var(--danger-hover); }
+
+        /* --- Записи занятий --- */
+        #class-entries {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .class-entry {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 2fr 0.2fr;
+            gap: 15px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Загрузчик и уведомления --- */
+        #loader {
+            text-align: center;
+            padding: 30px;
+            font-size: 18px;
+            color: var(--primary-color);
+            display: none;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--danger-color); }
+
+        /* --- Адаптивность --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.2rem; }
+            #admin-container { padding: 20px; }
+            
+            .controls-grid { grid-template-columns: 1fr; }
+            
+            .class-entry {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="admin-container">
+        <h1>Панель Администратора</h1>
+        <h2>Управление Расписанием</h2>
+
+        <form id="schedule-form" onsubmit="saveSchedule(event)">
+            <div class="controls-grid">
+                <div class="form-group">
+                    <label for="group-select">Выберите Группу</label>
+                    <select id="group-select">
+                        <option value="guruh1">1-40010101B</option>
+                        <option value="guruh2">1-40010102B</option>
+                        <option value="guruh3">1-40010103B</option>
+                        <option value="guruh4">1-40010104B</option>
+                        <option value="guruh5">1-40010108B</option>
+                        <option value="guruh6">1-40010108</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="day-select">Выберите День</label>
+                    <select id="day-select">
+                        <option value="Душанбе">Душанбе</option>
+                        <option value="Сешанбе">Сешанбе</option>
+                        <option value="Чоршанбе">Чоршанбе</option>
+                        <option value="Панҷшанбе">Панҷшанбе</option>
+                        <option value="Ҷумъа">Ҷумъа</option>
+                        <option value="Шанбе">Шанбе</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 10px 0;">
+
+            <div id="loader">Загрузка... ⏳</div>
+            <div id="class-entries">
+                </div>
+            
+            <div class="actions" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                 <button type="button" id="add-class-btn" style="flex-grow: 1;">➕ Добавить Занятие</button>
+                 <button type="submit" id="save-schedule-btn" style="flex-grow: 1;">💾 Сохранить Расписание</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        // --- ВАША КОНФИГУРАЦИЯ FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJy3eKFL23mIOVM2ruEdVhI1mIVsIp6cU", // ЗАМЕНИТЕ НА СВОЙ КЛЮЧ
+            authDomain: "university-chat-15114.firebaseapp.com",
+            projectId: "university-chat-15114",
+            storageBucket: "university-chat-15114.appspot.com", // исправлено .firebasestorage. -> .appspot.
+            messagingSenderId: "109943351862",
+            appId: "1:109943351862:web:57cbecba075494a1f5c697",
+            measurementId: "G-44LH6764ET"
+        };
+      
+        // --- ИНИЦИАЛИЗАЦИЯ FIREBASE ---
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // --- DOM ЭЛЕМЕНТЫ ---
+        const groupSelect = document.getElementById('group-select');
+        const daySelect = document.getElementById('day-select');
+        const classEntries = document.getElementById('class-entries');
+        const addClassBtn = document.getElementById('add-class-btn');
+        const loader = document.getElementById('loader');
+
+        // --- ПРЕДУСТАНОВЛЕННЫЕ ВРЕМЕННЫЕ СЛОТЫ ---
+        const timeSlots = [
+            "08:00-08:50", "09:00-09:50", "10:00-10:50", "11:00-11:50",
+            "12:00-12:50", "13:00-13:50", "14:00-14:50", "15:00-15:50",
+            "16:00-16:50", "17:00-17:50", "18:00-18:50"
+        ];
+
+        // --- УВЕДОМЛЕНИЯ (TOAST) ---
+        const showToast = (message, type = 'success') => {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // --- ДОБАВЛЕНИЕ НОВОГО ЗАНЯТИЯ ---
+        const addClassEntry = (time = '', aud = '', subject = '') => {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'class-entry';
+
+            const timeOptions = timeSlots.map(slot => 
+                `<option value="${slot}" ${slot === time ? 'selected' : ''}>${slot}</option>`
+            ).join('');
+
+            entryDiv.innerHTML = `
+                <select class="time-select">${timeOptions}</select>
+                <input type="text" placeholder="Аудитория" value="${aud}">
+                <input type="text" placeholder="Предмет и Преподаватель" value="${subject}">
+                <button type="button" class="remove-class-btn">❌</button>
+            `;
+            classEntries.appendChild(entryDiv);
+        };
+
+        // --- ЗАГРУЗКА РАСПИСАНИЯ ---
+        const loadSchedule = async () => {
+            const group = groupSelect.value;
+            const day = daySelect.value;
+            loader.style.display = 'block';
+            classEntries.innerHTML = '';
+            
+            try {
+                const docRef = db.collection('schedules').doc(group);
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const daySchedule = data[day];
+                    if (daySchedule && Array.isArray(daySchedule)) {
+                        daySchedule.forEach(classInfo => {
+                            addClassEntry(classInfo.time, classInfo.aud, classInfo.subject);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Ошибка загрузки расписания: ", error);
+                showToast('Не удалось загрузить расписание.', 'error');
+            } finally {
+                loader.style.display = 'none';
+            }
+        };
+
+        // --- СОХРАНЕНИЕ РАСПИСАНИЯ ---
+        const saveSchedule = async (e) => {
+            e.preventDefault();
+            const group = groupSelect.value;
+            const day = daySelect.value;
+            const scheduleData = [];
+            const entries = classEntries.querySelectorAll('.class-entry');
+
+            entries.forEach(entry => {
+                const timeSelect = entry.querySelector('.time-select');
+                const inputs = entry.querySelectorAll('input');
+                const aud = inputs[0].value;
+                const subject = inputs[1].value;
+                
+                if (timeSelect.value && (aud || subject)) { // Сохраняем только если есть данные
+                    scheduleData.push({ 
+                        time: timeSelect.value, 
+                        aud: aud, 
+                        subject: subject 
+                    });
+                }
+            });
+
+            try {
+                // Используем Firestore batch для атомарной операции
+                const docRef = db.collection('schedules').doc(group);
+                await docRef.set({
+                    [day]: scheduleData
+                }, { merge: true });
+                showToast('Расписание успешно сохранено! 🎉', 'success');
+            } catch (error) {
+                console.error("Ошибка сохранения расписания: ", error);
+                showToast('Ошибка сохранения. См. консоль.', 'error');
+            }
+        };
+
+        // --- ОБРАБОТЧИКИ СОБЫТИЙ ---
+        addClassBtn.addEventListener('click', () => addClassEntry(timeSlots[0]));
+
+        classEntries.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-class-btn')) {
+                e.target.closest('.class-entry').remove();
+            }
+        });
+
+        groupSelect.addEventListener('change', loadSchedule);
+        daySelect.addEventListener('change', loadSchedule);
+
+        // --- НАЧАЛЬНАЯ ЗАГРУЗКА ---
+        document.addEventListener('DOMContentLoaded', loadSchedule);
+    </script>
+</body>
+</html>

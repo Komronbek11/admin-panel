@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ: Управление Уведомлениями</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            --container-bg: rgba(255, 255, 255, 0.7);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --primary-color: #007AFF;
+            --primary-hover: #0056b3;
+            --success-color: #34C759;
+            --danger-color: #FF3B30;
+            --danger-hover: #c82333;
+            --warning-color: #FF9500;
+            --text-color: #1d1d1f;
+            --text-secondary-color: #6c757d;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --border-radius-lg: 24px;
+            --border-radius-md: 16px;
+            --font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-image: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--container-bg);
+            backdrop-filter: blur(10px);
+            padding: 30px 40px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 { text-align: center; color: var(--text-color); margin-bottom: 30px; }
+
+        form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
+        
+        input, textarea, select {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        textarea { resize: vertical; min-height: 100px; }
+
+        button {
+            padding: 15px 25px; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        .primary-btn { background-color: var(--primary-color); color: white; }
+        .primary-btn:hover { background-color: var(--primary-hover); }
+
+        #notifications-list { display: flex; flex-direction: column; gap: 15px; }
+        .notification-item {
+            display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+            padding: 20px; border-radius: var(--border-radius-md);
+            background: var(--card-bg);
+            border-left: 5px solid;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .notification-content { flex-grow: 1; }
+        .notification-content p { margin: 0; }
+        .notification-author { font-size: 0.85rem; color: var(--text-secondary-color); width: 100%; margin-top: 8px; }
+
+        .notification-item.info { border-color: var(--primary-color); }
+        .notification-item.success { border-color: var(--success-color); }
+        .notification-item.warning { border-color: var(--warning-color); }
+
+        .delete-btn {
+            background: var(--danger-color); color: white; border-radius: 8px; 
+            padding: 8px 12px; cursor: pointer; margin-left: 20px;
+        }
+        .delete-btn:hover { background-color: var(--danger-hover); }
+
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        #user-email { font-weight: 500; }
+        #logout-btn { background: none; color: var(--danger-color); padding: 5px 10px; }
+        #auth-error { color: var(--danger-color); text-align: center; margin-top: 15px; }
+
+        #admin-panel { display: none; }
+
+        @media (max-width: 600px) {
+            body { align-items: flex-start; }
+            .container { padding: 20px; }
+            h1 { font-size: 24px; }
+            .notification-item { align-items: flex-start; gap: 15px; }
+            .delete-btn { margin-left: 0; width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-container" class="container">
+        <h1>Вход в Панель Администратора</h1>
+        <form id="login-form">
+            <input type="email" id="login-email" placeholder="Email" required>
+            <input type="password" id="login-password" placeholder="Пароль" required>
+            <button type="submit" class="primary-btn">Войти</button>
+            <button type="button" id="register-btn">Зарегистрироваться</button>
+        </form>
+        <p id="auth-error"></p>
+    </div>
+
+    <div id="admin-panel" class="container">
+        <div class="admin-header">
+            <span id="user-email"></span>
+            <button id="logout-btn">Выйти</button>
+        </div>
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0 0 30px 0;">
+
+        <h1>Панель Уведомлений</h1>
+        <form id="add-notification-form">
+            <textarea id="notification-message" placeholder="Введите текст уведомления..." required></textarea>
+            
+            <input type="text" id="notification-author" placeholder="Автор (например, Деканат)" required>
+            
+            <select id="notification-type">
+                <option value="info">ℹ️ Инфо</option>
+                <option value="success">✅ Успех</option>
+                <option value="warning">⚠️ Предупреждение</option>
+            </select>
+            <button type="submit" class="primary-btn">➕ Добавить Уведомление</button>
+        </form>
+
+        <div id="notifications-list">
+            <div class="loader">Загрузка уведомлений...</div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDww__vYGLKmPz1z8nSnh_Tmry96sb-3OE",
+            authDomain: "srstudent-76914.firebaseapp.com",
+            projectId: "srstudent-76914",
+            storageBucket: "srstudent-76914.appspot.com",
+            messagingSenderId: "1066284112446",
+            appId: "1:1066284112446:web:e0c23b04c080ada2e74f6f",
+            measurementId: "G-J9CKGMR4QS"
+        };
+      
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const notificationsCollection = db.collection('notifications');
+
+        const loginContainer = document.getElementById('login-container');
+        const adminPanel = document.getElementById('admin-panel');
+        const loginForm = document.getElementById('login-form');
+        const registerBtn = document.getElementById('register-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const authError = document.getElementById('auth-error');
+        const userEmailSpan = document.getElementById('user-email');
+        const addNotificationForm = document.getElementById('add-notification-form');
+        const messageInput = document.getElementById('notification-message');
+        const typeSelect = document.getElementById('notification-type');
+        const authorInput = document.getElementById('notification-author'); // Получаем поле автора
+        const notificationsList = document.getElementById('notifications-list');
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loginContainer.style.display = 'none';
+                adminPanel.style.display = 'block';
+                userEmailSpan.textContent = `Вы вошли как: ${user.email}`;
+                loadNotifications();
+            } else {
+                loginContainer.style.display = 'block';
+                adminPanel.style.display = 'none';
+                userEmailSpan.textContent = '';
+            }
+        });
+
+        loginForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => { authError.textContent = `Ошибка входа: ${error.message}`; });
+        });
+
+        registerBtn.addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if (!email || !password) {
+                authError.textContent = 'Введите email и пароль для регистрации.';
+                return;
+            }
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => { authError.textContent = 'Регистрация успешна! Теперь войдите.'; })
+                .catch(error => { authError.textContent = `Ошибка регистрации: ${error.message}`; });
+        });
+
+        logoutBtn.addEventListener('click', () => { auth.signOut(); });
+
+        // --- Логика Уведомлений (ОБНОВЛЕНО) ---
+
+        addNotificationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            const type = typeSelect.value;
+            const author = authorInput.value.trim(); // Получаем значение из поля автора
+            
+            if (message && author) { // Проверяем, что и сообщение, и автор заполнены
+                try {
+                    await notificationsCollection.add({
+                        message: message,
+                        type: type,
+                        author: author, // Сохраняем автора
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    messageInput.value = '';
+                    authorInput.value = ''; // Очищаем поле автора после отправки
+                } catch (error) {
+                    console.error("Ошибка добавления документа: ", error);
+                    alert("Не удалось добавить уведомление.");
+                }
+            } else {
+                alert('Пожалуйста, заполните все поля: сообщение и автор.');
+            }
+        });
+
+        function loadNotifications() {
+            notificationsCollection.orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                notificationsList.innerHTML = '';
+                if (snapshot.empty) {
+                    notificationsList.innerHTML = '<p style="text-align:center; color:#888;">Уведомлений пока нет.</p>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const item = document.createElement('div');
+                    item.className = `notification-item ${data.type}`;
+                    
+                    // Обновленная структура для отображения автора
+                    item.innerHTML = `
+                        <div class="notification-content">
+                            <p>${data.message}</p>
+                            <div class="notification-author">Автор: <strong>${data.author || 'Не указан'}</strong></div>
+                        </div>
+                        <button class="delete-btn" data-id="${doc.id}">Удалить</button>
+                    `;
+                    notificationsList.appendChild(item);
+                });
+            }, error => {
+                console.error("Ошибка получения уведомлений: ", error);
+                notificationsList.innerHTML = '<p style="text-align:center; color:red;">Ошибка загрузки данных.</p>';
+            });
+        }
+
+        notificationsList.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const docId = e.target.dataset.id;
+                if (confirm('Вы уверены, что хотите удалить это уведомление?')) {
+                    await notificationsCollection.doc(docId).delete().catch(error => {
+                        console.error("Ошибка удаления: ", error);
+                        alert("Не удалось удалить уведомление.");
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

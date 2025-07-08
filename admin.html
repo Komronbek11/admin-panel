@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Преподаватели</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --text-color: #1a202c;
+            --aurora-1: #3b82f6;
+            --aurora-2: #8b5cf6;
+            --aurora-3: #10b981;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* --- Aurora Background --- */
+        .aurora-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -1;
+        }
+        @keyframes rotate { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        .aurora-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.25;
+            animation: rotate 50s infinite linear;
+        }
+        .aurora-1 { width: 600px; height: 600px; background: var(--aurora-1); top: -200px; left: -200px; animation-duration: 40s; }
+        .aurora-2 { width: 500px; height: 500px; background: var(--aurora-2); bottom: -150px; right: -150px; animation-duration: 55s; }
+        .aurora-3 { width: 400px; height: 400px; background: var(--aurora-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 45s; }
+
+        /* --- Glassmorphism Card --- */
+        .glass-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- Form Elements --- */
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .btn-edit { background-color: #f59e0b; color: white; padding: 8px 12px; font-size: 0.875rem; }
+        .btn-edit:hover { background-color: #d97706; }
+        .btn-delete { background-color: #ef4444; color: white; padding: 8px 12px; font-size: 0.875rem; }
+        .btn-delete:hover { background-color: #dc2626; }
+
+        /* --- Teacher List --- */
+        .teacher-card-entry {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        .teacher-card-entry:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .teacher-card-entry img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 16px;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div class="aurora-container">
+        <div class="aurora-shape aurora-1"></div>
+        <div class="aurora-shape aurora-2"></div>
+        <div class="aurora-shape aurora-3"></div>
+    </div>
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Панель администратора</h1>
+            <p class="text-lg text-gray-600 mt-2">Управление составом преподавателей</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1">
+                <div class="glass-card p-6 rounded-2xl sticky top-8">
+                    <h2 class="text-2xl font-semibold mb-5 flex items-center gap-3" id="form-title">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Добавить преподавателя</span>
+                    </h2>
+                    <form id="teacher-form">
+                        <input type="hidden" id="teacher-id">
+                        <input type="text" id="name" class="form-input" placeholder="Ному насаб" required>
+                        <input type="text" id="position" class="form-input" placeholder="Мавқеъ" required>
+                        <select id="department" class="form-input" required>
+                            <option value="">Интихоби кафедра</option>
+                            <option value="Программирование">Программирование</option>
+                            <option value="Физика">Физика</option>
+                            <option value="Информатика">Информатика</option>
+                            <option value="Математика">Математика</option>
+                            <option value="Химия">Химия</option>
+                            <option value="Биология">Биология</option>
+                            <option value="История">История</option>
+                            <option value="География">География</option>
+                            <option value="Экономика">Экономика</option>
+                            <option value="Литература">Литература</option>
+                            <option value="Иностранный язык">Иностранный язык</option>
+                            <option value="Философия">Философия</option>
+                            <option value="Социология">Социология</option>
+                            <option value="Психология">Психология</option>
+                            <option value="Искусство">Искусство</option>
+                            <option value="Музыка">Музыка</option>
+                            <option value="Физическая культура">Физическая культура</option>
+                            <option value="Экология">Экология</option>
+                            <option value="Технология">Технология</option>
+                            <option value="Другое">Дигар</option>
+                        </select>
+                        <input type="url" id="image-url" class="form-input" placeholder="URL-адрес изображения" required>
+                        <input type="tel" id="phone" class="form-input" placeholder="Рақами мобилӣ" required>
+                        
+                        <div class="flex items-center gap-4 mt-2">
+                            <button type="submit" id="submit-button" class="btn btn-primary w-full">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span>Добавить</span>
+                            </button>
+                            <button type="button" id="cancel-button" class="btn btn-secondary w-full" style="display:none;">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="glass-card p-6 rounded-2xl">
+                    <h2 class="text-2xl font-semibold mb-5">Текущий состав</h2>
+                    <div id="teacher-list" class="space-y-3">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <script>
+        // Your Firebase configuration object
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3_Qs3pr6OK2JvyL7ViO09aFXjjt9qygQ",
+            authDomain: "tut-app-6aaae.firebaseapp.com",
+            projectId: "tut-app-6aaae",
+            storageBucket: "tut-app-6aaae.appspot.com",
+            messagingSenderId: "726613480112",
+            appId: "1:726613480112:web:6e55cfb767ec8f6c5d6175",
+            measurementId: "G-DZ0XNZR35S"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const teachersCollection = db.collection("teachers");
+
+        // --- DOM Elements ---
+        const teacherForm = document.getElementById("teacher-form");
+        const teacherListDiv = document.getElementById("teacher-list");
+        const teacherIdField = document.getElementById("teacher-id");
+        const formTitle = document.getElementById("form-title").querySelector('span');
+        const submitButton = document.getElementById("submit-button");
+        const submitButtonText = submitButton.querySelector('span');
+        const cancelButton = document.getElementById("cancel-button");
+
+        // --- НОВОЕ: Функция для показа уведомлений ---
+        const showToast = (text, type = 'success') => {
+            const colors = {
+                success: 'linear-gradient(to right, #00b09b, #96c93d)',
+                error: 'linear-gradient(to right, #ff5f6d, #ffc371)',
+            };
+
+            Toastify({
+                text: text,
+                duration: 3000,
+                close: true,
+                gravity: "top", // `top` or `bottom`
+                position: "right", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+                style: {
+                    background: colors[type],
+                },
+            }).showToast();
+        }
+
+        // --- Functions ---
+        const resetForm = () => {
+            teacherForm.reset();
+            teacherIdField.value = '';
+            formTitle.textContent = 'Добавить преподавателя';
+            submitButtonText.textContent = 'Добавить';
+            cancelButton.style.display = 'none';
+            submitButton.classList.remove('w-1/2');
+            submitButton.classList.add('w-full');
+        };
+
+        const renderTeachers = () => {
+            teachersCollection.orderBy("name").onSnapshot(snapshot => {
+                if (snapshot.empty) {
+                    teacherListDiv.innerHTML = `<p class="text-center text-gray-500 py-8">Список преподавателей пуст. Добавьте первого!</p>`;
+                    return;
+                }
+                teacherListDiv.innerHTML = "";
+                snapshot.forEach(doc => {
+                    const teacher = doc.data();
+                    const teacherCard = document.createElement("div");
+                    teacherCard.className = 'teacher-card-entry glass-card';
+                    
+                    teacherCard.innerHTML = `
+                        <img src="${teacher.image}" alt="${teacher.name}" onerror="this.onerror=null;this.src='https://via.placeholder.com/100';">
+                        <div class="flex-grow">
+                            <h3 class="font-semibold text-lg">${teacher.name}</h3>
+                            <p class="text-sm text-gray-600">${teacher.position} - ${teacher.department}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editTeacher('${doc.id}')" class="btn btn-edit">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L16.732 3.732z"></path></svg>
+                            </button>
+                            <button onclick="deleteTeacher('${doc.id}')" class="btn btn-delete">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    `;
+                    teacherListDiv.appendChild(teacherCard);
+                });
+            });
+        };
+
+        teacherForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = teacherIdField.value;
+            const teacherData = {
+                name: document.getElementById("name").value,
+                position: document.getElementById("position").value,
+                department: document.getElementById("department").value,
+                image: document.getElementById("image-url").value,
+                phone: document.getElementById("phone").value
+            };
+
+            try {
+                if (id) {
+                    await teachersCollection.doc(id).update(teacherData);
+                    showToast('✅ Данные успешно обновлены!');
+                } else {
+                    await teachersCollection.add(teacherData);
+                    showToast('✅ Преподаватель успешно добавлен!');
+                }
+                resetForm();
+            } catch (error) {
+                console.error("Ошибка при сохранении данных: ", error);
+                showToast('❌ Ошибка! Не удалось сохранить данные.', 'error');
+            }
+        });
+
+        window.editTeacher = async (id) => {
+            const doc = await teachersCollection.doc(id).get();
+            if (!doc.exists) return;
+            
+            const teacher = doc.data();
+            teacherIdField.value = id;
+            document.getElementById("name").value = teacher.name;
+            document.getElementById("position").value = teacher.position;
+            document.getElementById("department").value = teacher.department;
+            document.getElementById("image-url").value = teacher.image;
+            document.getElementById("phone").value = teacher.phone;
+            
+            formTitle.textContent = "Редактировать данные";
+            submitButtonText.textContent = "Обновить";
+            cancelButton.style.display = 'inline-flex';
+            submitButton.classList.add('w-1/2');
+            submitButton.classList.remove('w-full');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.deleteTeacher = async (id) => {
+            if (confirm("Вы уверены, что хотите удалить этого преподавателя?")) {
+                try {
+                    await teachersCollection.doc(id).delete();
+                    showToast('🗑️ Запись успешно удалена!');
+                } catch (error) {
+                    console.error("Ошибка при удалении: ", error);
+                    showToast('❌ Ошибка! Не удалось удалить запись.', 'error');
+                }
+            }
+        };
+
+        cancelButton.addEventListener('click', resetForm);
+
+        // Initial render
+        renderTeachers();
+    </script>
+</body>
+</html>
