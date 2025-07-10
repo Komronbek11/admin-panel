@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Отзывы</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f7f8fa;
+            --text-color-primary: #111827;
+            --text-color-secondary: #6b7280;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --accent-color: #2563eb;
+        }
+        html.dark {
+            --bg-color: #0d1117;
+            --text-color-primary: #e2e8f0;
+            --text-color-secondary: #94a3b8;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --accent-color: #3b82f6;
+        }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .message-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        }
+        .message-card.is-unread {
+            border-left: 4px solid var(--accent-color);
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid transparent;
+        }
+        .btn-delete {
+            background-color: transparent;
+            color: #ef4444;
+        }
+        .btn-delete:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+        .btn-read {
+            background-color: transparent;
+            color: #10b981;
+        }
+        .btn-read:hover {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+    </style>
+</head>
+<body class="py-8 sm:py-12">
+
+    <div class="container mx-auto px-4 max-w-4xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Панель администратора</h1>
+            <p class="text-lg mt-3 opacity-70" style="color: var(--text-color-secondary);">
+                Входящие сообщения с формы обратной связи.
+            </p>
+        </header>
+
+        <main id="messages-container" class="space-y-6">
+            <div class="message-card p-5 space-y-4 animate-pulse">
+                <div class="flex justify-between items-center">
+                    <div class="w-1/3 h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="w-1/4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+                <div class="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div class="w-3/4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+             <div class="message-card p-5 space-y-4 animate-pulse">
+                <div class="flex justify-between items-center">
+                    <div class="w-1/2 h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div class="w-1/5 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+                <div class="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const themeMatcher = window.matchMedia('(prefers-color-scheme: dark)');
+        const toggleDarkTheme = isDark => document.documentElement.classList.toggle('dark', isDark);
+        toggleDarkTheme(themeMatcher.matches);
+        themeMatcher.addEventListener('change', e => toggleDarkTheme(e.matches));
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyCJy3eKFL23mIOVM2ruEdVhI1mIVsIp6cU",
+  authDomain: "university-chat-15114.firebaseapp.com",
+  databaseURL: "https://university-chat-15114-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "university-chat-15114",
+  storageBucket: "university-chat-15114.firebasestorage.app",
+  messagingSenderId: "109943351862",
+  appId: "1:109943351862:web:57cbecba075494a1f5c697",
+  measurementId: "G-44LH6764ET"
+};
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const messagesRef = db.ref('messages');
+
+        const messagesContainer = document.getElementById('messages-container');
+
+        const renderMessages = (messages) => {
+            messagesContainer.innerHTML = '';
+            if (Object.keys(messages).length === 0) {
+                messagesContainer.innerHTML = `<p class="text-center py-12 opacity-70" style="color: var(--text-color-secondary);">✨ Новых сообщений пока нет.</p>`;
+                return;
+            }
+
+            // Сортируем сообщения по времени, новые сверху
+            const sortedIds = Object.keys(messages).sort((a, b) => messages[b].timestamp - messages[a].timestamp);
+
+            sortedIds.forEach(id => {
+                const msg = messages[id];
+                const card = document.createElement('div');
+                card.className = `message-card p-5 ${!msg.isRead ? 'is-unread' : ''}`;
+                
+                const date = new Date(msg.timestamp).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                card.innerHTML = `
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4">
+                        <div>
+                            <p class="font-bold text-lg">${msg.name}</p>
+                            <a href="mailto:${msg.email}" class="text-sm" style="color: var(--accent-color);">${msg.email}</a>
+                            ${msg.phone ? `<span class="text-sm ml-2" style="color: var(--text-color-secondary);">${msg.phone}</span>` : ''}
+                        </div>
+                        <p class="text-xs font-medium flex-shrink-0" style="color: var(--text-color-secondary);">${date}</p>
+                    </div>
+                    <p class="text-base whitespace-pre-wrap" style="color: var(--text-color-secondary);">${msg.message}</p>
+                    <div class="flex justify-end gap-2 mt-4">
+                        ${!msg.isRead ? `<button class="btn btn-read" onclick="markAsRead('${id}')">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                            Прочитано
+                        </button>` : ''}
+                        <button class="btn btn-delete" onclick="deleteMessage('${id}')">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            Удалить
+                        </button>
+                    </div>
+                `;
+                messagesContainer.appendChild(card);
+            });
+        };
+
+        // Функция для пометки как прочитанное
+        window.markAsRead = (id) => {
+            messagesRef.child(id).update({ isRead: true });
+        };
+
+        // Функция для удаления сообщения
+        window.deleteMessage = (id) => {
+            if (confirm('Вы уверены, что хотите удалить это сообщение?')) {
+                messagesRef.child(id).remove();
+            }
+        };
+
+        // Слушатель изменений в БД
+        messagesRef.on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            renderMessages(data);
+        });
+    </script>
+</body>
+</html>
