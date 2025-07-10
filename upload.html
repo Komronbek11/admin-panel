@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление СРС</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #1a202c;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --aurora-opacity: 0.25;
+            --toast-success-bg: #10b981;
+            --toast-error-bg: #ef4444;
+        }
+        html.dark {
+            --bg-color: #0b1120;
+            --text-color: #e2e8f0;
+            --card-bg: rgba(23, 37, 62, 0.5);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(23, 37, 62, 0.7);
+            --aurora-opacity: 0.5;
+        }
+        html { scroll-behavior: smooth; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        .aurora-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: -1; }
+        @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .aurora-shape { position: absolute; border-radius: 50%; filter: blur(120px); opacity: var(--aurora-opacity); animation: rotate 50s infinite linear; transition: opacity 0.5s ease;}
+        .aurora-1 { width: 600px; height: 600px; background: #3b82f6; top: -200px; left: -200px; }
+        .aurora-2 { width: 500px; height: 500px; background: #8b5cf6; bottom: -150px; right: -150px; animation-duration: 55s; }
+        .glass-card { background-color: var(--card-bg); border: 1px solid var(--border-color); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.07); transition: all 0.5s ease;}
+        .form-input { color: var(--text-color); width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-color); background-color: var(--input-bg); transition: all 0.3s ease; }
+        .form-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
+        .btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background-color: #3b82f6; color: white; }
+        .btn-primary:hover { background-color: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+        .btn-secondary { background-color: #6b7280; color: white; }
+        .btn-secondary:hover { background-color: #4b5563; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(107, 114, 128, 0.2); }
+        
+        #editor-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        .editor-btn { background-color: transparent; border: 1px solid transparent; border-radius: 6px; padding: 6px; transition: all 0.2s ease; position: relative; }
+        .editor-btn:hover { background-color: rgba(0,0,0,0.05); border-color: var(--border-color); }
+        html.dark .editor-btn:hover { background-color: rgba(255,255,255,0.1); }
+        .editor-btn svg { width: 20px; height: 20px; color: var(--text-color); opacity: 0.8; pointer-events: none; }
+        #description-editor { min-height: 150px; padding: 12px; outline: none; }
+        #description-editor table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        #description-editor th, #description-editor td { border: 1px solid var(--border-color); padding: 8px; text-align: left; }
+        #description-editor ul, #description-editor ol { padding-left: 20px; margin: 0.5rem 0; }
+        #description-editor li { margin-bottom: 0.25rem; }
+
+        /* НОВОЕ: Стили для Popover выбора таблицы */
+        #table-creator-popover {
+            position: absolute;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            padding: 8px;
+            z-index: 10;
+            transition: opacity 0.2s, transform 0.2s;
+            transform-origin: top left;
+        }
+        #table-grid { display: grid; gap: 3px; cursor: pointer; }
+        .grid-cell { width: 20px; height: 20px; background-color: rgba(0,0,0,0.05); border: 1px solid var(--border-color); border-radius: 2px; transition: all 0.1s ease; }
+        html.dark .grid-cell { background-color: rgba(255,255,255,0.1); }
+        .grid-cell.highlight { background-color: #3b82f6; border-color: #2563eb; }
+        #table-dimension-display { font-size: 0.875rem; text-align: center; padding-bottom: 8px; color: var(--text-color); opacity: 0.7; }
+        
+        .toastify { padding: 14px 20px; color: #fff; display: inline-flex; align-items: center; gap: 12px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); font-family: 'Inter', sans-serif; opacity: 0; transition: all 0.4s cubic-bezier(0.21, 1.02, 0.73, 1); }
+        .toastify.on { opacity: 1; }
+        .toast-close { display: none; }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+
+    <div class="aurora-container">
+        <div class="aurora-shape aurora-1"></div>
+        <div class="aurora-shape aurora-2"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-bold">Панель управления СРС</h1>
+            <p class="text-lg opacity-70 mt-2">Добавляйте, редактируйте и управляйте заданиями для студентов</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1">
+                <div class="glass-card p-4 sm:p-6 rounded-2xl sticky top-8">
+                    <h2 class="text-2xl font-semibold mb-5" id="form-title">Добавить задание</h2>
+                    <form id="assignment-form" class="space-y-4">
+                        <input type="hidden" id="assignment-id">
+                        <input type="text" id="subject" class="form-input" placeholder="Название предмета" required>
+                        <input type="text" id="teacherName" class="form-input" placeholder="ФИО преподавателя" required>
+                        
+                        <div>
+                            <label class="font-semibold block mb-2">Содержание СРС:</label>
+                            <div class="glass-card rounded-xl border border-[var(--border-color)] overflow-hidden">
+                                <div id="editor-toolbar">
+                                    <button type="button" class="editor-btn" data-command="bold" title="Жирный"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.6 10.79c.97.67 1.65 1.77 1.65 2.98 0 2.3-1.85 4.23-4.25 4.23H7.5V6h5.85c2.15 0 3.9 1.67 3.9 3.71 0 1.54-1.03 2.87-2.3 3.38zM13.5 8.5H9.5v2.5h4c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5zm0 4.5H9.5v3h4.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"></path></svg></button>
+                                    <button type="button" class="editor-btn" data-command="italic" title="Курсив"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"></path></svg></button>
+                                    <button type="button" class="editor-btn" data-command="underline" title="Подчеркнутый"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zM5 19v2h14v-2H5z"></path></svg></button>
+                                    <button type="button" class="editor-btn" data-command="insertOrderedList" title="Нумерованный список"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"></path></svg></button>
+                                    <button type="button" class="editor-btn" data-command="insertUnorderedList" title="Маркированный список"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2zM4 5.5c0 .83-.67 1.5-1.5 1.5S1 6.33 1 5.5 1.67 4 2.5 4 4 4.67 4 5.5zm-1.5 5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5S1 12.83 1 12s.67-1.5 1.5-1.5zm0 5c.83 0 1.5.67 1.5 1.5S3.33 20 2.5 20 1 19.33 1 18.5s.67-1.5 1.5-1.5z"></path></svg></button>
+                                    
+                                    <button type="button" class="editor-btn" id="open-table-creator-btn" title="Создать таблицу">
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m0 2v3h14V6H5m0 5v3h4v-3H5m6 0v3h8v-3h-8m-6 5v3h4v-3H5m6 0v3h8v-3h-8z"></path></svg>
+                                        <div id="table-creator-popover" class="hidden">
+                                            <div id="table-dimension-display">Таблица</div>
+                                            <div id="table-grid"></div>
+                                        </div>
+                                    </button>
+
+                                    <button type="button" class="editor-btn" data-command="removeFormat" title="Очистить форматирование"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.27 5L2 6.27l6.97 6.97L6.5 17h3.05l1.59-3.41L17.73 20l1.27-1.27L3.27 5zM12.5 11.53l-1-1-2.09-4.53H17l-3.11 7-1.39-3.03z"></path></svg></button>
+                                </div>
+                                <div id="description-editor" contenteditable="true" class="form-input rounded-t-none border-t-0"></div>
+                            </div>
+                        </div>
+
+                        <input type="url" id="imageUrl" class="form-input" placeholder="URL изображения (необязательно)">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div><label for="startDate" class="text-sm font-medium opacity-80">Дата начала</label><input type="date" id="startDate" class="form-input" required></div>
+                            <div><label for="endDate" class="text-sm font-medium opacity-80">Дата окончания</label><input type="date" id="endDate" class="form-input" required></div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center gap-4 pt-2">
+                            <button type="submit" id="submit-button" class="btn btn-primary w-full">Добавить</button>
+                            <button type="button" id="cancel-button" class="btn btn-secondary w-full" style="display:none;">Отмена</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2"><div id="assignments-list" class="space-y-4"></div></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        // ... (вся предыдущая логика Firebase, Toast, CRUD, рендеринг списка остается без изменений) ...
+        const themeMatcher = window.matchMedia('(prefers-color-scheme: dark)');
+        const toggleDarkTheme = (isDark) => document.documentElement.classList.toggle('dark', isDark);
+        toggleDarkTheme(themeMatcher.matches);
+        themeMatcher.addEventListener('change', (e) => toggleDarkTheme(e.matches));
+        const firebaseConfig={apiKey:"AIzaSyCAOfxPW5m2UqtulWzuh3egOjJ-ti-rDf8",authDomain:"register-221e5.firebaseapp.com",projectId:"register-221e5",storageBucket:"register-221e5.appspot.com",messagingSenderId:"588640206529",appId:"1:588640206529:web:b2abf5413387e251935e40"};
+        firebase.initializeApp(firebaseConfig);
+        const db=firebase.database(),assignmentsRef=db.ref('assignments');let localAssignments={};
+        const form=document.getElementById('assignment-form'),descriptionEditor=document.getElementById('description-editor'),assignmentIdField=document.getElementById('assignment-id'),editorToolbar=document.getElementById('editor-toolbar');
+        const showToast=(text,type='success')=>{const icons={success:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="22" height="22"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>',error:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="22" height="22"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>'},backgroundColor=type==='success'?getComputedStyle(document.documentElement).getPropertyValue('--toast-success-bg'):getComputedStyle(document.documentElement).getPropertyValue('--toast-error-bg');Toastify({text:`${icons[type]} ${text}`,duration:4e3,gravity:"bottom",position:"right",style:{background:backgroundColor.trim()},escapeMarkup:!1}).showToast()};
+        editorToolbar.addEventListener('click',e=>{const button=e.target.closest('.editor-btn[data-command]');if(!button)return;e.preventDefault();const command=button.dataset.command;document.execCommand(command,!1,null);descriptionEditor.focus()});
+        form.addEventListener('submit',e=>{e.preventDefault();const id=assignmentIdField.value,descriptionHTML=descriptionEditor.innerHTML;if(descriptionHTML.trim()===''||descriptionHTML==='<br>')return void showToast('❌ Поле "Содержание СРС" не может быть пустым.','error');const assignmentData={subject:document.getElementById('subject').value,teacherName:document.getElementById('teacherName').value,description:descriptionHTML,imageUrl:document.getElementById('imageUrl').value,startDate:document.getElementById('startDate').value,endDate:document.getElementById('endDate').value,timestamp:firebase.database.ServerValue.TIMESTAMP},action=id?db.ref('assignments/'+id).update(assignmentData):assignmentsRef.push(assignmentData);action.then(()=>{showToast(`✅ Задание успешно ${id?'обновлено':'добавлено'}!`),resetForm()}).catch(err=>showToast(`❌ Ошибка: ${err.message}`,'error'))});
+        window.editAssignment=id=>{const assignment=localAssignments[id];if(!assignment)return;assignmentIdField.value=id,document.getElementById('subject').value=assignment.subject,document.getElementById('teacherName').value=assignment.teacherName,descriptionEditor.innerHTML=assignment.description,document.getElementById('imageUrl').value=assignment.imageUrl,document.getElementById('startDate').value=assignment.startDate,document.getElementById('endDate').value=assignment.endDate,document.getElementById('form-title').textContent='Редактировать задание',document.getElementById('submit-button').textContent='Обновить',document.getElementById('cancel-button').style.display='inline-flex',window.scrollTo({top:0,behavior:'smooth'}),descriptionEditor.focus()};
+        const resetForm=()=>{form.reset(),assignmentIdField.value='',descriptionEditor.innerHTML='',document.getElementById('form-title').textContent='Добавить задание',document.getElementById('submit-button').textContent='Добавить',document.getElementById('cancel-button').style.display='none'};document.getElementById('cancel-button').addEventListener('click',resetForm);
+        window.deleteAssignment=id=>{if(confirm('Вы уверены, что хотите удалить это задание? Это действие необратимо.'))db.ref('assignments/'+id).remove().then(()=>showToast('🗑️ Задание удалено!')).catch(err=>showToast(`❌ Ошибка при удалении: ${err.message}`,'error'))};
+        const renderAssignments=data=>{const assignmentsListDiv=document.getElementById('assignments-list');if(assignmentsListDiv.innerHTML='',!data)return void(assignmentsListDiv.innerHTML='<div class="glass-card p-8 rounded-xl text-center opacity-80">✨ Список заданий пока пуст. Добавьте первое!</div>');localAssignments=data;const sortedIds=Object.keys(data).sort((a,b)=>data[b].timestamp-data[a].timestamp);sortedIds.forEach(id=>{const item=data[id],card=document.createElement('div');card.className='glass-card p-4 sm:p-5 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-4';const timeLeft=Math.ceil((new Date(item.endDate)-new Date)/(1e3*60*60*24)),timeStatusColor=timeLeft<0?'text-red-500':timeLeft<=3?'text-yellow-500':'text-green-500',timeStatusText=timeLeft<0?'Срок истек':`Осталось дней: ${timeLeft}`;card.innerHTML=`\n                    <div class="flex-grow">\n                        <p class="font-bold text-lg">${item.subject}</p><p class="text-sm opacity-80 mt-1">${item.teacherName}</p><div class="text-xs mt-2 opacity-70">\n                            <span>Сроки: ${item.startDate} – ${item.endDate}</span>\n                            <span class="font-semibold ml-3 ${timeStatusColor}">${timeStatusText}</span>\n                        </div>\n                    </div>\n                    <div class="flex self-end sm:self-center flex-shrink-0 gap-2">\n                        <button onclick="editAssignment('${id}')" class="btn text-xs bg-yellow-500 hover:bg-yellow-600 text-white !px-3 !py-2">Изменить</button>\n                        <button onclick="deleteAssignment('${id}')" class="btn text-xs bg-red-500 hover:bg-red-600 text-white !px-3 !py-2">Удалить</button>\n                    </div>`,assignmentsListDiv.appendChild(card)})};
+        assignmentsRef.on('value',snapshot=>renderAssignments(snapshot.val()));
+
+
+        // --- НОВАЯ ЛОГИКА ДЛЯ ИНТЕРАКТИВНОЙ ТАБЛИЦЫ ---
+
+        const tableCreatorBtn = document.getElementById('open-table-creator-btn');
+        const popover = document.getElementById('table-creator-popover');
+        const gridContainer = document.getElementById('table-grid');
+        const dimensionDisplay = document.getElementById('table-dimension-display');
+
+        let maxRows = 10;
+        let maxCols = 10;
+
+        // Генерация сетки
+        function generateGrid(rows, cols) {
+            gridContainer.innerHTML = '';
+            gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            for (let i = 1; i <= rows * cols; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cell.dataset.row = Math.ceil(i / cols);
+                cell.dataset.col = (i - 1) % cols + 1;
+                gridContainer.appendChild(cell);
+            }
+        }
+
+        // Обновление подсветки
+        gridContainer.addEventListener('mouseover', (e) => {
+            const cell = e.target;
+            if (!cell.classList.contains('grid-cell')) return;
+
+            const currentRow = parseInt(cell.dataset.row);
+            const currentCol = parseInt(cell.dataset.col);
+
+            dimensionDisplay.textContent = `Таблица: ${currentRow} x ${currentCol}`;
+
+            // Подсветка ячеек
+            document.querySelectorAll('.grid-cell').forEach(c => {
+                c.classList.toggle('highlight', c.dataset.row <= currentRow && c.dataset.col <= currentCol);
+            });
+            
+            // Динамическое расширение сетки
+            if (currentRow === maxRows) {
+                maxRows++;
+                generateGrid(maxRows, maxCols);
+            }
+            if (currentCol === maxCols) {
+                maxCols++;
+                generateGrid(maxRows, maxCols);
+            }
+        });
+
+        // Вставка таблицы
+        gridContainer.addEventListener('click', (e) => {
+            const cell = e.target;
+            if (!cell.classList.contains('grid-cell')) return;
+
+            const rows = parseInt(cell.dataset.row);
+            const cols = parseInt(cell.dataset.col);
+            insertTable(rows, cols);
+            popover.classList.add('hidden');
+        });
+
+        // Открытие/закрытие Popover
+        tableCreatorBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Предотвращаем всплытие, чтобы не сработал клик "снаружи"
+            popover.classList.toggle('hidden');
+        });
+
+        // Клик снаружи для закрытия
+        window.addEventListener('click', (e) => {
+            if (!popover.classList.contains('hidden') && !tableCreatorBtn.contains(e.target)) {
+                popover.classList.add('hidden');
+            }
+        });
+
+        // Функция для вставки HTML таблицы в редактор
+        function insertTable(rows, cols) {
+            let tableHTML = '<table class="w-full border-collapse"><tbody>';
+            for (let i = 0; i < rows; i++) {
+                tableHTML += '<tr>';
+                for (let j = 0; j < cols; j++) {
+                    tableHTML += '<td contenteditable="true" class="border p-2"></td>';
+                }
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</tbody></table><p><br></p>'; // Добавляем отступ
+            descriptionEditor.focus();
+            document.execCommand('insertHTML', false, tableHTML);
+        }
+
+        // Первичная генерация сетки
+        generateGrid(maxRows, maxCols);
+
+    </script>
+</body>
+</html>
