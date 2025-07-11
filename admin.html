@@ -9,144 +9,133 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
-    <style>
-        :root {
-            --bg-color: #f0f2f5;
-            --card-bg: rgba(255, 255, 255, 0.6);
-            --border-color: rgba(0, 0, 0, 0.1);
-            --text-color: #1a202c;
-            --aurora-1: #3b82f6;
-            --aurora-2: #8b5cf6;
-            --aurora-3: #10b981;
-        }
+  <style>
+    :root {
+        /* --- НОВОЕ: Цветовая палитра в стиле "Киберпанк" --- */
+        --bg-color: #0a0c1a;
+        --card-bg: rgba(15, 23, 42, 0.4); /* Прозрачный темный фон */
+        --border-color: rgba(0, 191, 255, 0.25);
+        --text-color: #eaf0ff;
+        --text-secondary: #8a99c2;
+        --primary-color: #00bfff; /* Основной неоновый цвет */
 
-        html {
-            scroll-behavior: smooth;
-        }
+        /* --- НОВОЕ: Неоновые цвета для фона "Аврора" --- */
+        --aurora-1: #00bfff; /* Cyan */
+        --aurora-2: #ff00ff; /* Magenta */
+        --aurora-3: #39ff14; /* Neon Green */
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            overflow-x: hidden;
-        }
+    html {
+        scroll-behavior: smooth;
+    }
 
-        /* --- Aurora Background --- */
-        .aurora-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-            z-index: -1;
-        }
-        @keyframes rotate { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
-        .aurora-shape {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.25;
-            animation: rotate 50s infinite linear;
-        }
-        .aurora-1 { width: 600px; height: 600px; background: var(--aurora-1); top: -200px; left: -200px; animation-duration: 40s; }
-        .aurora-2 { width: 500px; height: 500px; background: var(--aurora-2); bottom: -150px; right: -150px; animation-duration: 55s; }
-        .aurora-3 { width: 400px; height: 400px; background: var(--aurora-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 45s; }
+    body {
+        /* --- НОВОЕ: Замена шрифта --- */
+        font-family: 'Share Tech Mono', monospace;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        overflow-x: hidden;
+    }
 
-        /* --- Glassmorphism Card --- */
-        .glass-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
+    /* --- Aurora Background (адаптирован под темную тему) --- */
+    .aurora-container {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: -1;
+    }
+    @keyframes rotate { 
+        0% { transform: rotate(0deg); } 
+        100% { transform: rotate(360deg); } 
+    }
+    .aurora-shape {
+        position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.4; animation: rotate 50s infinite linear;
+    }
+    .aurora-1 { width: 600px; height: 600px; background: var(--aurora-1); top: -200px; left: -200px; animation-duration: 40s; }
+    .aurora-2 { width: 500px; height: 500px; background: var(--aurora-2); bottom: -150px; right: -150px; animation-duration: 55s; }
+    .aurora-3 { width: 400px; height: 400px; background: var(--aurora-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 45s; }
 
-        /* --- Form Elements --- */
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background-color: rgba(255, 255, 255, 0.8);
-            transition: all 0.3s ease;
-            font-size: 1rem;
-        }
-        .form-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-            background-color: rgba(255, 255, 255, 1);
-        }
+    /* --- Glassmorphism Card (адаптирован) --- */
+    .glass-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        transition: all 0.3s ease;
+        box-shadow: 0 0 25px rgba(0,0,0,0.2), 0 0 15px var(--primary-color-t, transparent) inset;
+    }
+    .glass-card:hover {
+        --primary-color-t: rgba(0, 191, 255, 0.1);
+        border-color: rgba(0, 191, 255, 0.5);
+    }
+    
+    /* --- НОВЫЕ СТИЛИ: Заголовки с неоновым свечением --- */
+    h1, h2 {
+        text-shadow: 0 0 6px var(--primary-color);
+    }
+    .text-gray-800 { color: var(--text-color) !important; }
+    .text-gray-600 { color: var(--text-secondary) !important; }
 
-        /* --- Buttons --- */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #2563eb;
-        }
-        .btn-secondary {
-            background-color: #6b7280;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #4b5563;
-        }
-        .btn-edit { background-color: #f59e0b; color: white; padding: 8px 12px; font-size: 0.875rem; }
-        .btn-edit:hover { background-color: #d97706; }
-        .btn-delete { background-color: #ef4444; color: white; padding: 8px 12px; font-size: 0.875rem; }
-        .btn-delete:hover { background-color: #dc2626; }
+    /* --- Form Elements (переделаны под темную тему) --- */
+    .form-input {
+        width: 100%; padding: 12px 16px; margin-bottom: 16px; border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background-color: rgba(0, 0, 0, 0.2);
+        color: var(--text-color); /* Цвет вводимого текста */
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+    .form-input::placeholder { color: var(--text-secondary); }
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        background-color: rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.3);
+    }
+    
+    /* --- Buttons (переделаны под темную тему) --- */
+    .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        background: transparent;
+        color: var(--text-color);
+        box-shadow: 0 0 10px rgba(0, 191, 255, 0.2);
+    }
+    .btn:hover {
+        transform: translateY(-2px);
+        background: rgba(0, 191, 255, 0.1);
+        color: white;
+        box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+    }
+    /* Переопределение цветов для кнопок */
+    .btn-primary { background-color: rgba(0, 191, 255, 0.2); border-color: var(--primary-color); }
+    .btn-primary:hover { background-color: rgba(0, 191, 255, 0.4); }
+    .btn-secondary { background-color: rgba(138, 153, 194, 0.2); border-color: var(--text-secondary); }
+    .btn-secondary:hover { background-color: rgba(138, 153, 194, 0.4); }
+    
+    .btn-edit { padding: 8px 12px; font-size: 0.875rem; background-color: rgba(245, 158, 11, 0.2); border-color: #f59e0b; }
+    .btn-edit:hover { background-color: rgba(245, 158, 11, 0.4); }
+    .btn-delete { padding: 8px 12px; font-size: 0.875rem; background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; }
+    .btn-delete:hover { background-color: rgba(239, 68, 68, 0.4); }
 
-        /* --- Teacher List --- */
-        .teacher-card-entry {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            transition: all 0.3s ease;
-        }
-        .teacher-card-entry:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-        .teacher-card-entry img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 16px;
-            border: 2px solid white;
-        }
-    </style>
+    /* --- Teacher List (адаптирован) --- */
+    .teacher-card-entry {
+        display: flex; align-items: center; padding: 16px; border-radius: 12px; margin-bottom: 12px;
+        transition: all 0.3s ease;
+    }
+    .teacher-card-entry:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    .teacher-card-entry img {
+        width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 16px;
+        border: 2px solid var(--primary-color);
+    }
+</style>
+
 </head>
 <body class="min-h-screen">
 
@@ -253,24 +242,36 @@
         const cancelButton = document.getElementById("cancel-button");
 
         // --- НОВОЕ: Функция для показа уведомлений ---
-        const showToast = (text, type = 'success') => {
-            const colors = {
-                success: 'linear-gradient(to right, #00b09b, #96c93d)',
-                error: 'linear-gradient(to right, #ff5f6d, #ffc371)',
-            };
+       const showToast = (text, type = 'success') => {
+    // Новые стили для уведомлений
+    const styles = {
+        success: {
+            background: "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
+            border: "1px solid #39ff14",
+            textShadow: "0 0 5px #39ff14"
+        },
+        error: {
+            background: "linear-gradient(135deg, #23074d, #42275a)",
+            border: "1px solid #ff00ff",
+            textShadow: "0 0 5px #ff00ff"
+        },
+    };
 
-            Toastify({
-                text: text,
-                duration: 3000,
-                close: true,
-                gravity: "top", // `top` or `bottom`
-                position: "right", // `left`, `center` or `right`
-                stopOnFocus: true, // Prevents dismissing of toast on hover
-                style: {
-                    background: colors[type],
-                },
-            }).showToast();
-        }
+    Toastify({
+        text: text,
+        duration: 3000,
+        close: true,
+        gravity: "top", 
+        position: "right", 
+        stopOnFocus: true,
+        style: {
+            fontFamily: "'Share Tech Mono', monospace",
+            borderRadius: "10px",
+            ...(styles[type]) // Применяем нужный стиль
+        },
+    }).showToast();
+}
+
 
         // --- Functions ---
         const resetForm = () => {
