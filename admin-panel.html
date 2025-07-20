@@ -9,173 +9,159 @@
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
- <style>
-    :root {
-        /* -- NEW: Dark, futuristic color palette -- */
-        --bg-gradient: linear-gradient(135deg, #020412 0%, #0d041c 100%);
-        --card-bg: rgba(23, 27, 58, 0.4);
-        --text-color: #eaf0ff;
-        --text-secondary-color: #8a99c2;
-        --primary-color: #00bfff; /* Deep Sky Blue for a neon feel */
-        --border-color: rgba(0, 191, 255, 0.25);
-        --shadow: 0 0 20px rgba(0, 191, 255, 0.1);
-        --shadow-hover: 0 0 45px rgba(0, 191, 255, 0.3);
-        
-        --border-radius-md: 18px;
-        /* -- NEW: Swapped to a more technical, monospaced font -- */
-        --font-family: 'Share Tech Mono', monospace;
-    }
-
-    body {
-        font-family: var(--font-family);
-        background-image: var(--bg-gradient);
-        background-attachment: fixed;
-        color: var(--text-color);
-        margin: 0;
-        padding: 25px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        
-        /* -- NEW: Scanline effect for that retro-futuristic monitor look -- */
-        position: relative;
-        /* -- FIX: Allow vertical scrolling while preventing horizontal scroll -- */
-        overflow-x: hidden;
-    }
-    
-    body::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: repeating-linear-gradient(
-            0deg,
-            rgba(0, 0, 0, 0.3),
-            rgba(0, 0, 0, 0.3) 1px,
-            transparent 1px,
-            transparent 3px
-        );
-        pointer-events: none;
-        z-index: 999;
-    }
-
-    .container {
-        width: 100%;
-        max-width: 960px;
-        text-align: center;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-        /* -- NEW: Glowing text effect -- */
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.7),
-                     0 0 15px var(--primary-color);
-    }
-
-    .welcome-text {
-        font-size: 1.1rem;
-        color: var(--text-secondary-color);
-        margin-bottom: 40px;
-        letter-spacing: 1px; /* -- NEW: Added letter spacing for style -- */
-    }
-
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 25px;
-    }
-
-    .card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        background: var(--card-bg);
-        backdrop-filter: blur(10px);
-        border-radius: var(--border-radius-md);
-        border: 1px solid var(--border-color);
-        box-shadow: var(--shadow);
-        text-decoration: none;
-        color: var(--text-color);
-        aspect-ratio: 1 / 1;
-        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-        
-        /* -- NEW: Animation on entrance for a dynamic feel -- */
-        animation: fadeIn 0.5s ease-out forwards;
-        opacity: 0;
-    }
-    
-    /* -- NEW: Staggered animation for each card -- */
-    .card:nth-child(1) { animation-delay: 0.1s; }
-    .card:nth-child(2) { animation-delay: 0.2s; }
-    .card:nth-child(3) { animation-delay: 0.3s; }
-    .card:nth-child(4) { animation-delay: 0.4s; }
-    .card:nth-child(5) { animation-delay: 0.5s; }
-    .card:nth-child(6) { animation-delay: 0.6s; }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #020412 0%, #0d041c 100%);
+            --card-bg: rgba(23, 27, 58, 0.4);
+            --text-color: #eaf0ff;
+            --text-secondary-color: #8a99c2;
+            --primary-color: #00bfff; /* Deep Sky Blue for a neon feel */
+            --border-color: rgba(0, 191, 255, 0.25);
+            --shadow: 0 0 20px rgba(0, 191, 255, 0.1);
+            --shadow-hover: 0 0 45px rgba(0, 191, 255, 0.3);
+            --border-radius-md: 18px;
+            --font-family: 'Share Tech Mono', monospace;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+
+        body {
+            font-family: var(--font-family);
+            background-image: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-color);
+            margin: 0;
+            padding: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
-    }
 
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.3),
+                rgba(0, 0, 0, 0.3) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
 
-    .card:hover {
-        transform: translateY(-8px) scale(1.03); /* -- NEW: Added scale for more pop -- */
-        box-shadow: var(--shadow-hover);
-        border-color: rgba(0, 191, 255, 0.7); /* -- NEW: Brighter border on hover -- */
-    }
+        .container {
+            width: 100%;
+            max-width: 960px;
+            text-align: center;
+        }
 
-    .card-icon {
-        width: 48px;
-        height: 48px;
-        color: var(--primary-color);
-        margin-bottom: 15px;
-        /* -- NEW: Glowing icon effect -- */
-        filter: drop-shadow(0 0 8px var(--primary-color));
-        transition: filter 0.3s ease;
-    }
-
-    .card:hover .card-icon {
-        filter: drop-shadow(0 0 15px var(--primary-color));
-    }
-
-    .card span {
-        font-size: 1rem;
-        font-weight: 600;
-        text-shadow: 0 0 5px var(--primary-color); /* -- NEW: Subtle glow for card text -- */
-    }
-
-    @media (max-width: 600px) {
         h1 {
-            font-size: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7),
+                         0 0 15px var(--primary-color);
         }
+
+        .welcome-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary-color);
+            margin-bottom: 40px;
+            letter-spacing: 1px;
+        }
+
         .dashboard-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
         }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            text-decoration: none;
+            color: var(--text-color);
+            aspect-ratio: 1 / 1;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* Staggered animation for each card */
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+        .card:nth-child(7) { animation-delay: 0.7s; } /* Added for new card */
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(0, 191, 255, 0.7);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 8px var(--primary-color));
+            transition: filter 0.3s ease;
+        }
+
+        .card:hover .card-icon {
+            filter: drop-shadow(0 0 15px var(--primary-color));
+        }
+
         .card span {
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-shadow: 0 0 5px var(--primary-color);
         }
-    }
-</style>
 
-
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            .card span {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -202,20 +188,20 @@
                 <span>Расписание</span>
             </a>
 
-            <a href="admin-notifications.html" class="card"> <div class="card-icon">
+            <a href="admin-notifications.html" class="card">
+                <div class="card-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
                     </svg>
                 </div>
                 <span>Уведомления</span>
             </a>
-            
+
             <a href="upload.html" class="card">
                 <div class="card-icon">
                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
                     </svg>
-                    
                 </div>
                 <span>СРС +</span>
             </a>
@@ -229,7 +215,15 @@
                 <span>Отзывы пользователей</span>
             </a>
 
-            <a href="#" class="card">
+            <a href="admin_i.html" class="card">
+                <div class="card-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 5.25 6h.008a2.25 2.25 0 0 1 2.242 2.135 48.424 48.424 0 0 0-.112 3.135c0 .326.042.65.112.962a2.25 2.25 0 0 1-2.242 2.135H5.25a2.25 2.25 0 0 1-2.25-2.25V6.108c0-1.135.845-2.098 1.976-2.192a48.424 48.424 0 0 0 1.123-.08" />
+                    </svg>
+                </div>
+                <span>Экзамены</span>
+            </a>
+            <a href="" class="card">
                 <div class="card-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-1.025 1.11-1.11a12.002 12.002 0 0 1 3.09 0c.55.085 1.02.568 1.11 1.11.09.542.09 1.097 0 1.64-.09.542-.56 1.025-1.11 1.11a12.002 12.002 0 0 1-3.09 0c-.55-.085-1.02-.568-1.11-1.11a12.008 12.008 0 0 1 0-1.64Z" />
