@@ -1,10 +1,10 @@
 {
   "name": "AdminPanel Uapp",
-  "short_name": "Админ-панель",
+  "short_name": "AdminPanel Uapp",
   "description": "Панель управления для администраторов.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#000000",
+  "background_color": "#08659c",
   "theme_color": "#007AFF",
   "icons": [
     {
