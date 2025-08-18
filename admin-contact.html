@@ -24,9 +24,9 @@
             --accent-color: #3b82f6;
         }
         html { scroll-behavior: smooth; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-color); 
+        body {    
+            font-family: 'Inter', sans-serif;    
+            background-color: var(--bg-color);    
             color: var(--text-color-primary);
             transition: background-color 0.3s ease, color 0.3s ease;
         }
@@ -36,151 +36,210 @@
             border-radius: 1rem;
             transition: all 0.3s ease;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInSlideUp 0.5s forwards;
+        }
+        @keyframes fadeInSlideUp {
+            to { opacity: 1; transform: translateY(0); }
         }
         .message-card.is-unread {
             border-left: 4px solid var(--accent-color);
         }
         .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            transition: all 0.2s ease-in-out;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 1px solid transparent;
+            padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600;
+            transition: all 0.2s ease-in-out; display: inline-flex;
+            align-items: center; gap: 0.5rem; border: 1px solid transparent;
         }
-        .btn-delete {
-            background-color: transparent;
-            color: #ef4444;
+        .btn-delete { background-color: transparent; color: #ef4444; }
+        .btn-delete:hover { background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
+        .btn-delete.confirm { background-color: #ef4444; color: white; border-color: transparent; }
+        .btn-read { background-color: transparent; color: #10b981; }
+        .btn-read:hover { background-color: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
+        
+        /* Стили для входа */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 99;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
-        .btn-delete:hover {
-            background-color: rgba(239, 68, 68, 0.1);
-            border-color: rgba(239, 68, 68, 0.2);
-        }
-        .btn-read {
-            background-color: transparent;
-            color: #10b981;
-        }
-        .btn-read:hover {
-            background-color: rgba(16, 185, 129, 0.1);
-            border-color: rgba(16, 185, 129, 0.2);
+        #login-overlay.active { opacity: 1; pointer-events: all; }
+        #login-form { width: 100%; max-width: 380px; }
+        .form-input {
+             background-color: var(--card-bg); border: 1px solid var(--border-color);
+             border-radius: 0.75rem; padding: 0.75rem 1rem; width: 100%;
         }
     </style>
 </head>
 <body class="py-8 sm:py-12">
 
+    <div id="login-overlay">
+        <div id="login-form" class="bg-card p-8 rounded-2xl border" style="background-color: var(--card-bg); border-color: var(--border-color);">
+            <h2 class="text-2xl font-bold text-center mb-6">Вход для администратора</h2>
+            <form id="login" class="space-y-4">
+                <input type="email" id="email" class="form-input" placeholder="Email" required>
+                <input type="password" id="password" class="form-input" placeholder="Пароль" required>
+                <button type="submit" class="w-full btn" style="background-color: var(--accent-color); color: white;">Войти</button>
+                <p id="login-error" class="text-red-500 text-sm text-center"></p>
+            </form>
+        </div>
+    </div>
+
     <div class="container mx-auto px-4 max-w-4xl">
-        <header class="text-center mb-12">
-            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Панель администратора</h1>
-            <p class="text-lg mt-3 opacity-70" style="color: var(--text-color-secondary);">
-                Входящие сообщения с формы обратной связи.
-            </p>
+        <header class="text-center mb-12 flex justify-between items-center">
+            <div></div>
+            <div class="flex-grow">
+                <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Панель администратора</h1>
+                <p class="text-lg mt-3 opacity-70" style="color: var(--text-color-secondary);">
+                    Входящие сообщения с формы обратной связи.
+                </p>
+            </div>
+            <button id="logout-button" class="btn hidden" style="color: var(--text-color-secondary);">Выйти</button>
         </header>
 
         <main id="messages-container" class="space-y-6">
-            <div class="message-card p-5 space-y-4 animate-pulse">
-                <div class="flex justify-between items-center">
-                    <div class="w-1/3 h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div class="w-1/4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                </div>
-                <div class="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div class="w-3/4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </div>
-             <div class="message-card p-5 space-y-4 animate-pulse">
-                <div class="flex justify-between items-center">
-                    <div class="w-1/2 h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div class="w-1/5 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                </div>
-                <div class="w-full h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </div>
-        </main>
+            </main>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    <script>
+        // --- Логика темной темы ---
         const themeMatcher = window.matchMedia('(prefers-color-scheme: dark)');
         const toggleDarkTheme = isDark => document.documentElement.classList.toggle('dark', isDark);
         toggleDarkTheme(themeMatcher.matches);
         themeMatcher.addEventListener('change', e => toggleDarkTheme(e.matches));
 
+        // --- Конфигурация Firebase ---
         const firebaseConfig = {
-  apiKey: "AIzaSyCJy3eKFL23mIOVM2ruEdVhI1mIVsIp6cU",
-  authDomain: "university-chat-15114.firebaseapp.com",
-  databaseURL: "https://university-chat-15114-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "university-chat-15114",
-  storageBucket: "university-chat-15114.firebasestorage.app",
-  messagingSenderId: "109943351862",
-  appId: "1:109943351862:web:57cbecba075494a1f5c697",
-  measurementId: "G-44LH6764ET"
-};
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const messagesRef = db.ref('messages');
+            apiKey: "AIzaSyCJy3eKFL23mIOVM2ruEdVhI1mIVsIp6cU",
+            authDomain: "university-chat-15114.firebaseapp.com",
+            databaseURL: "https://university-chat-15114-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "university-chat-15114",
+            storageBucket: "university-chat-15114.appspot.com",
+            messagingSenderId: "109943351862",
+            appId: "1:109943351862:web:57cbecba075494a1f5c697",
+            measurementId: "G-44LH6764ET"
+        };
+        // --- Инициализация Firebase ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const messagesRef = ref(db, 'messages');
 
+        // --- DOM элементы ---
         const messagesContainer = document.getElementById('messages-container');
+        const loginOverlay = document.getElementById('login-overlay');
+        const loginForm = document.getElementById('login');
+        const loginError = document.getElementById('login-error');
+        const logoutButton = document.getElementById('logout-button');
 
+        // --- Функция рендеринга сообщений ---
         const renderMessages = (messages) => {
             messagesContainer.innerHTML = '';
-            if (Object.keys(messages).length === 0) {
+            if (!messages || Object.keys(messages).length === 0) {
                 messagesContainer.innerHTML = `<p class="text-center py-12 opacity-70" style="color: var(--text-color-secondary);">✨ Новых сообщений пока нет.</p>`;
                 return;
             }
 
-            // Сортируем сообщения по времени, новые сверху
             const sortedIds = Object.keys(messages).sort((a, b) => messages[b].timestamp - messages[a].timestamp);
 
-            sortedIds.forEach(id => {
+            sortedIds.forEach((id, index) => {
                 const msg = messages[id];
                 const card = document.createElement('div');
                 card.className = `message-card p-5 ${!msg.isRead ? 'is-unread' : ''}`;
+                card.style.animationDelay = `${index * 100}ms`;
                 
                 const date = new Date(msg.timestamp).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                
+                // Создание кнопок и добавление обработчиков
+                const controlsDiv = document.createElement('div');
+                controlsDiv.className = 'flex justify-end gap-2 mt-4';
 
+                if (!msg.isRead) {
+                    const readButton = document.createElement('button');
+                    readButton.className = 'btn btn-read';
+                    readButton.innerHTML = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Прочитано`;
+                    readButton.onclick = () => update(ref(db, `messages/${id}`), { isRead: true });
+                    controlsDiv.appendChild(readButton);
+                }
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'btn btn-delete';
+                deleteButton.innerHTML = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg> Удалить`;
+                
+                let deleteConfirmTimeout;
+                deleteButton.addEventListener('click', () => {
+                    if (deleteButton.classList.contains('confirm')) {
+                        clearTimeout(deleteConfirmTimeout);
+                        remove(ref(db, `messages/${id}`));
+                    } else {
+                        deleteButton.classList.add('confirm');
+                        deleteButton.innerHTML = `Вы уверены?`;
+                        deleteConfirmTimeout = setTimeout(() => {
+                            deleteButton.classList.remove('confirm');
+                            deleteButton.innerHTML = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg> Удалить`;
+                        }, 3000);
+                    }
+                });
+                controlsDiv.appendChild(deleteButton);
+                
                 card.innerHTML = `
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4">
-                        <div>
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-start gap-2 mb-4">
+                        <div class="flex items-center gap-3">
                             <p class="font-bold text-lg">${msg.name}</p>
-                            <a href="mailto:${msg.email}" class="text-sm" style="color: var(--accent-color);">${msg.email}</a>
-                            ${msg.phone ? `<span class="text-sm ml-2" style="color: var(--text-color-secondary);">${msg.phone}</span>` : ''}
+                            ${!msg.isRead ? `<span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full dark:bg-blue-200 dark:text-blue-800">Новый</span>` : ''}
                         </div>
                         <p class="text-xs font-medium flex-shrink-0" style="color: var(--text-color-secondary);">${date}</p>
                     </div>
-                    <p class="text-base whitespace-pre-wrap" style="color: var(--text-color-secondary);">${msg.message}</p>
-                    <div class="flex justify-end gap-2 mt-4">
-                        ${!msg.isRead ? `<button class="btn btn-read" onclick="markAsRead('${id}')">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                            Прочитано
-                        </button>` : ''}
-                        <button class="btn btn-delete" onclick="deleteMessage('${id}')">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                            Удалить
-                        </button>
+                    <div>
+                         <a href="mailto:${msg.email}" class="text-sm" style="color: var(--accent-color);">${msg.email}</a>
+                         ${msg.phone ? `<a href="tel:${msg.phone}" class="text-sm ml-2" style="color: var(--text-color-secondary);">${msg.phone}</a>` : ''}
                     </div>
+                    <p class="text-base whitespace-pre-wrap mt-3" style="color: var(--text-color-secondary);">${msg.message}</p>
                 `;
+                card.appendChild(controlsDiv);
                 messagesContainer.appendChild(card);
             });
         };
 
-        // Функция для пометки как прочитанное
-        window.markAsRead = (id) => {
-            messagesRef.child(id).update({ isRead: true });
-        };
-
-        // Функция для удаления сообщения
-        window.deleteMessage = (id) => {
-            if (confirm('Вы уверены, что хотите удалить это сообщение?')) {
-                messagesRef.child(id).remove();
+        // --- Логика аутентификации ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                // Пользователь вошел
+                loginOverlay.classList.remove('active');
+                logoutButton.classList.remove('hidden');
+                onValue(messagesRef, (snapshot) => {
+                    renderMessages(snapshot.val() || {});
+                });
+            } else {
+                // Пользователь не вошел
+                loginOverlay.classList.add('active');
+                logoutButton.classList.add('hidden');
+                messagesContainer.innerHTML = '';
             }
-        };
-
-        // Слушатель изменений в БД
-        messagesRef.on('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            renderMessages(data);
         });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            loginError.textContent = '';
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                loginError.textContent = "Неверный email или пароль.";
+            }
+        });
+
+        logoutButton.addEventListener('click', () => signOut(auth));
     </script>
 </body>
 </html>
