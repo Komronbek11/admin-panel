@@ -4,8 +4,8 @@
   "description": "Панель управления для администраторов.",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#08659c",
-  "theme_color": "#007AFF",
+  "background_color": "#f5feff",
+  "theme_color": "#f5feff",
   "icons": [
     {
       "src": "admin-panel.png",
@@ -19,3 +19,4 @@
     }
   ]
 }
+
