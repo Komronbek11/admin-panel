@@ -1,189 +1,422 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ: Управление Уведомлениями</title>
+    <title>Огоҳиномаҳо</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-   <style>
-    /* --- ОБНОВЛЕННАЯ ПАЛИТРА: Хакер-стиль --- */
-    :root {
-        --bg-gradient: linear-gradient(120deg, #0d041c 0%, #020412 100%);
-        --container-bg: rgba(15, 23, 42, 0.6);
-        --card-bg: rgba(23, 27, 58, 0.7);
-        --primary-color: #00bfff;
-        --primary-hover: #009acd;
-        --success-color: #39ff14;
-        --danger-color: #ff00ff;
-        --danger-hover: #d900d9;
-        --warning-color: #fce83a;
-        --text-color: #eaf0ff;
-        --text-secondary-color: #8a99c2;
-        --border-color: rgba(0, 191, 255, 0.25);
-        --shadow: 0 0 32px 0 rgba(0, 191, 255, 0.15);
-        --border-radius-lg: 24px;
-        --border-radius-md: 16px;
-        --font-family: 'Share Tech Mono', monospace;
-    }
+    <style>
+        :root {
+            --primary-color: #007AFF;
+            --success-color: #34C759;
+            --warning-color: #FF9500;
+            --danger-color: #FF3B30;
+            --primary-glow: rgba(0, 122, 255, 0.5);
+            --success-glow: rgba(52, 199, 89, 0.5);
+            --warning-glow: rgba(255, 149, 0, 0.5);
+            --text-color: #f0f2f5;
+            --text-secondary-color: #e0e2e5;
+            --border-radius: 16px;
+            --font-family: 'Inter', sans-serif;
+            --background-color: #121212;
+            --card-background: rgba(255, 255, 255, 0.08);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
 
-    /* --- ОБНОВЛЕННЫЕ СТИЛИ BODY --- */
-    body {
-        font-family: var(--font-family);
-        background-image: var(--bg-gradient);
-        background-attachment: fixed;
-        color: var(--text-color);
-        margin: 0;
-        padding: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        position: relative;
-        overflow-x: hidden;
-    }
-    body::after { /* Скан-линии */
-        content: "";
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: repeating-linear-gradient(0deg, rgba(0,0,0,0.3) 0, rgba(0,0,0,0.3) 1px, transparent 1px, transparent 3px);
-        pointer-events: none;
-        z-index: 1000;
-    }
-    body::-webkit-scrollbar { width: 10px; } /* Скроллбар */
-    body::-webkit-scrollbar-track { background: transparent; }
-    body::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; border: 2px solid #0a0c1a; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
 
-    .container {
-        background: var(--container-bg);
-        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-        padding: 30px 40px; border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow); border: 1px solid var(--border-color);
-        width: 100%; max-width: 800px;
-        z-index: 1;
-    }
+        body {
+            font-family: var(--font-family);
+            background: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
 
-    h1 { text-align: center; color: var(--text-color); margin-bottom: 30px; text-shadow: 0 0 8px var(--primary-color); }
+        /* Dynamic background shapes */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            z-index: -1;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.6;
+        }
 
-    form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
-    
-    input, textarea, select {
-        padding: 15px; border: 1px solid var(--border-color); border-radius: 12px;
-        font-size: 16px; width: 100%; box-sizing: border-box;
-        background-color: rgba(0, 0, 0, 0.3); color: var(--text-color);
-        transition: all 0.3s ease;
-    }
-    input::placeholder, textarea::placeholder { color: var(--text-secondary-color); }
-    input:focus, textarea:focus, select:focus {
-        outline: none; border-color: var(--primary-color);
-        box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
-    }
-    textarea { resize: vertical; min-height: 100px; }
+        body::before {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--primary-color), #5856D6);
+            top: -10%;
+            left: -10%;
+            animation: move-shape1 20s infinite alternate;
+        }
 
-    /* --- ОБНОВЛЕННЫЕ СТИЛИ КНОПОК --- */
-    button {
-        padding: 15px 25px; border: 1px solid var(--border-color); border-radius: 12px;
-        font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
-        background: transparent; color: var(--text-color);
-        box-shadow: 0 0 10px rgba(0, 191, 255, 0.2);
-    }
-    button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0 20px var(--primary-color);
-        background: rgba(0, 191, 255, 0.1);
-    }
-    .primary-btn { background-color: rgba(0, 191, 255, 0.2); border-color: var(--primary-color); }
-    .primary-btn:hover { background-color: rgba(0, 191, 255, 0.4); box-shadow: 0 0 20px var(--primary-color); }
-    #register-btn { background-color: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.3); }
-    #register-btn:hover { background-color: rgba(255, 255, 255, 0.2); box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
+        body::after {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--success-color), var(--warning-color));
+            bottom: -10%;
+            right: -5%;
+            animation: move-shape2 25s infinite alternate;
+        }
 
-    /* --- ОБНОВЛЕННЫЕ СТИЛИ УВЕДОМЛЕНИЙ --- */
-    #notifications-list { display: flex; flex-direction: column; gap: 15px; }
-    .notification-item {
-        display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
-        padding: 20px; border-radius: var(--border-radius-md);
-        background: var(--card-bg); border-left: 5px solid;
-        animation: fadeIn 0.5s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-    }
-    .notification-item:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    
-    .notification-content { flex-grow: 1; }
-    .notification-content p { margin: 0; }
-    .notification-author { font-size: 0.85rem; color: var(--text-secondary-color); width: 100%; margin-top: 8px; }
+        @keyframes move-shape1 {
+            from { transform: translate(0, 0) rotate(0deg); }
+            to { transform: translate(100px, 50px) rotate(180deg); }
+        }
 
-    .notification-item.info { border-color: var(--primary-color); }
-    .notification-item.success { border-color: var(--success-color); }
-    .notification-item.warning { border-color: var(--warning-color); }
+        @keyframes move-shape2 {
+            from { transform: translate(0, 0) rotate(0deg); }
+            to { transform: translate(-80px, -40px) rotate(-180deg); }
+        }
 
-    .delete-btn {
-        background: rgba(255, 0, 255, 0.15); border: 1px solid var(--danger-color);
-        color: white; border-radius: 8px; padding: 8px 12px; cursor: pointer;
-        margin-left: 20px; box-shadow: 0 0 10px var(--danger-color);
-    }
-    .delete-btn:hover { background-color: rgba(255, 0, 255, 0.3); box-shadow: 0 0 15px var(--danger-color); }
+        .scroll-wrapper {
+            height: 100vh;
+            overflow-y: auto;
+            padding: 25px 20px;
+        }
 
-    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    #user-email { font-weight: 500; }
-    #logout-btn { background: none; color: var(--danger-color); padding: 5px 10px; border: none; box-shadow: none;}
-    #logout-btn:hover { background: rgba(255, 0, 255, 0.1); text-shadow: 0 0 8px var(--danger-color);}
-    #auth-error { color: var(--danger-color); text-align: center; margin-top: 15px; text-shadow: 0 0 5px var(--danger-color);}
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-    #admin-panel { display: none; }
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
 
-    @media (max-width: 600px) {
-        body { align-items: flex-start; padding: 10px; }
-        .container { padding: 20px; }
-        h1 { font-size: 24px; }
-        .notification-item { align-items: flex-start; gap: 15px; }
-        .delete-btn { margin-left: 0; width: 100%; text-align: center; }
-    }
-</style>
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-top: 0;
+            margin-bottom: 0;
+            font-weight: 700;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            flex-grow: 1;
+        }
 
+        .btn-back {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-right: 15px;
+        }
+        .btn-back:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        .btn-back svg {
+            width: 20px;
+            height: 20px;
+            color: var(--text-color);
+        }
+
+        .form-card {
+            background: var(--card-background);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .form-card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-secondary-color);
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--primary-color);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn.btn-primary {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        .btn.btn-primary:hover {
+            background-color: #006aff;
+            transform: translateY(-2px);
+        }
+
+        #notifications-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding-bottom: 30px;
+        }
+
+        .notification-card {
+            background: var(--card-background);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.6s ease-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        @supports not (backdrop-filter: blur(25px)) {
+            .notification-card, .form-card, .form-group input, .form-group textarea, .form-group select {
+                background: rgba(40, 40, 40, 0.9);
+            }
+        }
+
+        .notification-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .notification-card.info:hover { box-shadow: 0 0 20px var(--primary-glow); }
+        .notification-card.success:hover { box-shadow: 0 0 20px var(--success-glow); }
+        .notification-card.warning:hover { box-shadow: 0 0 20px var(--warning-glow); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notification-card.info .notification-icon { color: var(--primary-color); }
+        .notification-card.success .notification-icon { color: var(--success-color); }
+        .notification-card.warning .notification-icon { color: var(--warning-color); }
+
+        /* Existing style for icons */
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .notification-icon {
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .notification-content p {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+            color: var(--text-color);
+        }
+
+        .notification-image {
+            width: calc(100% + 40px);
+            height: auto;
+            object-fit: cover;
+            max-height: 200px;
+            margin: -20px -20px 20px -20px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .notification-link {
+            margin-top: 15px;
+            text-decoration: none;
+        }
+        .notification-link .btn {
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+
+        .notification-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary-color);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 12px;
+            margin-top: auto;
+            line-height: 1.4;
+        }
+        .notification-meta span {
+            display: block;
+        }
+        .notification-meta strong {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .notification-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary-color);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
+        .action-button:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+        .action-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .action-button.edit-button:hover { color: var(--warning-color); }
+        .action-button.delete-button:hover { color: var(--danger-color); }
+
+        .loader-container {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1rem;
+            color: var(--text-secondary-color);
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .scroll-wrapper { padding: 20px 15px; }
+            .header-actions { flex-direction: column; align-items: stretch; }
+            .btn-back { margin-right: 0; margin-bottom: 20px; }
+            h1 { font-size: 2rem; margin-bottom: 20px; }
+            #notifications-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.6rem; }
+            .form-card { padding: 20px; }
+            .notification-card { padding: 15px; }
+        }
+    </style>
 </head>
 <body>
+    <main class="scroll-wrapper">
+        <div class="container">
+            <div class="header-actions">
+                <a href="#" class="btn-back" onclick="history.back()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                <h1>Огоҳиномаҳо</h1>
+            </div>
 
-    <div id="login-container" class="container">
-        <h1>Вход в Панель Администратора</h1>
-        <form id="login-form">
-            <input type="email" id="login-email" placeholder="Email" required>
-            <input type="password" id="login-password" placeholder="Пароль" required>
-            <button type="submit" class="primary-btn">Войти</button>
-            <button type="button" id="register-btn">Зарегистрироваться</button>
-        </form>
-        <p id="auth-error"></p>
-    </div>
+            <div class="form-card">
+                <h2 id="form-title">Иловаи Огоҳиномаи нав</h2>
+                <form id="notification-form">
+                    <input type="hidden" id="notification-id">
+                    <div class="form-group">
+                        <label for="message">Матн:</label>
+                        <textarea id="message" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Навъ:</label>
+                        <select id="type" required>
+                            <option value="info">Маълумот</option>
+                            <option value="success">Муваффақ</option>
+                            <option value="warning">Огоҳӣ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="author">Муаллиф:</label>
+                        <input type="text" id="author" value="Администрация">
+                    </div>
+                    <div class="form-group">
+                        <label for="imageUrl">Пайванди тасвир (ихтиёрӣ):</label>
+                        <input type="url" id="imageUrl">
+                    </div>
+                    <div class="form-group">
+                        <label for="link">Пайванд (ихтиёрӣ):</label>
+                        <input type="url" id="link">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Илова кардан</button>
+                </form>
+            </div>
 
-    <div id="admin-panel" class="container">
-        <div class="admin-header">
-            <span id="user-email"></span>
-            <button id="logout-btn">Выйти</button>
+            <div id="notifications-grid">
+                <div class="loader-container">Огоҳиномаҳо боргирӣ шудаистодаанд...</div>
+            </div>
         </div>
-        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0 0 30px 0;">
-
-        <h1>Панель Уведомлений</h1>
-        <form id="add-notification-form">
-            <textarea id="notification-message" placeholder="Введите текст уведомления..." required></textarea>
-            
-            <input type="text" id="notification-author" placeholder="Автор (например, Деканат)" required>
-            
-            <select id="notification-type">
-                <option value="info">ℹ️ Инфо</option>
-                <option value="success">✅ Успех</option>
-                <option value="warning">⚠️ Предупреждение</option>
-            </select>
-            <button type="submit" class="primary-btn">➕ Добавить Уведомление</button>
-        </form>
-
-        <div id="notifications-list">
-            <div class="loader">Загрузка уведомлений...</div>
-        </div>
-    </div>
+    </main>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDww__vYGLKmPz1z8nSnh_Tmry96sb-3OE",
@@ -194,128 +427,169 @@
             appId: "1:1066284112446:web:e0c23b04c080ada2e74f6f",
             measurementId: "G-J9CKGMR4QS"
         };
-      
+    
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const db = firebase.firestore();
         const auth = firebase.auth();
         const notificationsCollection = db.collection('notifications');
+        const notificationsGrid = document.getElementById('notifications-grid');
+        const formCard = document.querySelector('.form-card');
 
-        const loginContainer = document.getElementById('login-container');
-        const adminPanel = document.getElementById('admin-panel');
-        const loginForm = document.getElementById('login-form');
-        const registerBtn = document.getElementById('register-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const authError = document.getElementById('auth-error');
-        const userEmailSpan = document.getElementById('user-email');
-        const addNotificationForm = document.getElementById('add-notification-form');
-        const messageInput = document.getElementById('notification-message');
-        const typeSelect = document.getElementById('notification-type');
-        const authorInput = document.getElementById('notification-author'); // Получаем поле автора
-        const notificationsList = document.getElementById('notifications-list');
+        // Form elements
+        const notificationForm = document.getElementById('notification-form');
+        const messageInput = document.getElementById('message');
+        const typeSelect = document.getElementById('type');
+        const authorInput = document.getElementById('author');
+        const imageUrlInput = document.getElementById('imageUrl');
+        const linkInput = document.getElementById('link');
+        const notificationIdInput = document.getElementById('notification-id');
+        const formTitle = document.getElementById('form-title');
+        const submitBtn = document.getElementById('submit-btn');
 
+        const icons = {
+            info: `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>`,
+            success: `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`,
+            warning: `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`,
+            edit: `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`,
+            delete: `<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5L13.5 3h-5L7.5 4H4v2h16V4z"/></svg>`
+        };
+
+        // Check user authentication state
         auth.onAuthStateChanged(user => {
             if (user) {
-                loginContainer.style.display = 'none';
-                adminPanel.style.display = 'block';
-                userEmailSpan.textContent = `Вы вошли как: ${user.email}`;
-                loadNotifications();
+                formCard.style.display = 'block';
             } else {
-                loginContainer.style.display = 'block';
-                adminPanel.style.display = 'none';
-                userEmailSpan.textContent = '';
+                formCard.style.display = 'none';
             }
+            loadNotifications(); // Reload notifications after auth state is known
         });
 
-        loginForm.addEventListener('submit', e => {
+        // CREATE/UPDATE
+        notificationForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            auth.signInWithEmailAndPassword(email, password)
-                .catch(error => { authError.textContent = `Ошибка входа: ${error.message}`; });
-        });
-
-        registerBtn.addEventListener('click', () => {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            if (!email || !password) {
-                authError.textContent = 'Введите email и пароль для регистрации.';
+            if (!auth.currentUser) {
+                alert('Барои иҷрои ин амал шумо бояд ворид шавед.');
                 return;
             }
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(() => { authError.textContent = 'Регистрация успешна! Теперь войдите.'; })
-                .catch(error => { authError.textContent = `Ошибка регистрации: ${error.message}`; });
-        });
+            const notificationId = notificationIdInput.value;
+            const notificationData = {
+                message: messageInput.value,
+                type: typeSelect.value,
+                author: authorInput.value,
+                imageUrl: imageUrlInput.value || null,
+                link: linkInput.value || null,
+                ...(!notificationId && { createdAt: firebase.firestore.FieldValue.serverTimestamp() })
+            };
 
-        logoutBtn.addEventListener('click', () => { auth.signOut(); });
-
-        // --- Логика Уведомлений (ОБНОВЛЕНО) ---
-
-        addNotificationForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const message = messageInput.value.trim();
-            const type = typeSelect.value;
-            const author = authorInput.value.trim(); // Получаем значение из поля автора
-            
-            if (message && author) { // Проверяем, что и сообщение, и автор заполнены
-                try {
-                    await notificationsCollection.add({
-                        message: message,
-                        type: type,
-                        author: author, // Сохраняем автора
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    messageInput.value = '';
-                    authorInput.value = ''; // Очищаем поле автора после отправки
-                } catch (error) {
-                    console.error("Ошибка добавления документа: ", error);
-                    alert("Не удалось добавить уведомление.");
+            try {
+                if (notificationId) {
+                    await notificationsCollection.doc(notificationId).update(notificationData);
+                    alert('Огоҳинома бомуваффақият нав карда шуд!');
+                } else {
+                    await notificationsCollection.add(notificationData);
+                    alert('Огоҳинома бомуваффақият илова карда шуд!');
                 }
-            } else {
-                alert('Пожалуйста, заполните все поля: сообщение и автор.');
+                notificationForm.reset();
+                notificationIdInput.value = '';
+                formTitle.textContent = 'Иловаи Огоҳиномаи нав';
+                submitBtn.textContent = 'Илова кардан';
+            } catch (error) {
+                console.error("Хатогӣ ҳангоми илова/навсозии огоҳинома: ", error);
+                alert('Хатогӣ ҳангоми илова/навсозии огоҳинома.');
             }
         });
 
+        // READ
         function loadNotifications() {
             notificationsCollection.orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                notificationsList.innerHTML = '';
+                notificationsGrid.innerHTML = '';
                 if (snapshot.empty) {
-                    notificationsList.innerHTML = '<p style="text-align:center; color:#888;">Уведомлений пока нет.</p>';
+                    notificationsGrid.innerHTML = '<p style="text-align:center; color:#ccc; grid-column: 1 / -1;">Ҳанӯз огоҳинома нест.</p>';
                     return;
                 }
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    const item = document.createElement('div');
-                    item.className = `notification-item ${data.type}`;
+                    const card = document.createElement('div');
+                    card.className = `notification-card ${data.type || 'info'}`;
                     
-                    // Обновленная структура для отображения автора
-                    item.innerHTML = `
-                        <div class="notification-content">
-                            <p>${data.message}</p>
-                            <div class="notification-author">Автор: <strong>${data.author || 'Не указан'}</strong></div>
+                    const timestamp = data.createdAt ? data.createdAt.toDate() : new Date();
+                    const formattedTime = timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                    const formattedDate = timestamp.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                    const userIsAuthenticated = auth.currentUser !== null;
+                    const actionButtons = userIsAuthenticated ? `
+                        <div class="notification-actions">
+                            <button class="action-button edit-button" onclick="editNotification('${doc.id}', '${data.message}', '${data.type}', '${data.author}', '${data.imageUrl || ''}', '${data.link || ''}')">
+                                ${icons.edit} Таҳрир
+                            </button>
+                            <button class="action-button delete-button" onclick="deleteNotification('${doc.id}')">
+                                ${icons.delete} Нест кардан
+                            </button>
+                        </div>` : '';
+
+                    card.innerHTML = `
+                        ${data.imageUrl ? `<img src="${data.imageUrl}" alt="Изображение уведомления" class="notification-image">` : ''}
+                        <div class="card-header">
+                            <div class="notification-icon">
+                                ${icons[data.type] || icons.info}
+                            </div>
+                            <div class="notification-content">
+                                <p>${data.message}</p>
+                            </div>
                         </div>
-                        <button class="delete-btn" data-id="${doc.id}">Удалить</button>
+                        ${data.link ? `<a href="${data.link}" target="_blank" class="notification-link"><button class="btn btn-primary">Маълумоти бештар</button></a>` : ''}
+                        <div class="notification-meta">
+                            <span>Нашр шудааст: <strong>${data.author || 'Администрация'}</strong></span>
+                            <span>${formattedDate} дар ${formattedTime}</span>
+                        </div>
+                        ${actionButtons}
                     `;
-                    notificationsList.appendChild(item);
+                    notificationsGrid.appendChild(card);
                 });
             }, error => {
-                console.error("Ошибка получения уведомлений: ", error);
-                notificationsList.innerHTML = '<p style="text-align:center; color:red;">Ошибка загрузки данных.</p>';
+                console.error("Хатогӣ ҳангоми қабули огоҳиномаҳо: ", error);
+                notificationsGrid.innerHTML = '<p style="text-align:center; color:red; grid-column: 1 / -1;">Хатогӣ ҳангоми боркунии маълумот.</p>';
             });
         }
-
-        notificationsList.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('delete-btn')) {
-                const docId = e.target.dataset.id;
-                if (confirm('Вы уверены, что хотите удалить это уведомление?')) {
-                    await notificationsCollection.doc(docId).delete().catch(error => {
-                        console.error("Ошибка удаления: ", error);
-                        alert("Не удалось удалить уведомление.");
-                    });
+    
+        // DELETE
+        async function deleteNotification(id) {
+            if (!auth.currentUser) {
+                alert('Барои иҷрои ин амал шумо бояд ворид шавед.');
+                return;
+            }
+            if (confirm('Шумо мутмаин ҳастед, ки ин огоҳиномаро нест кардан мехоҳед?')) {
+                try {
+                    await notificationsCollection.doc(id).delete();
+                    alert('Огоҳинома бомуваффақият нест карда шуд!');
+                } catch (error) {
+                    console.error("Хатогӣ ҳангоми нест кардани огоҳинома: ", error);
+                    alert('Хатогӣ ҳангоми нест кардани огоҳинома.');
                 }
             }
-        });
+        }
+
+        // UPDATE
+        function editNotification(id, message, type, author, imageUrl, link) {
+            if (!auth.currentUser) {
+                alert('Барои иҷрои ин амал шумо бояд ворид шавед.');
+                return;
+            }
+            notificationIdInput.value = id;
+            messageInput.value = message;
+            typeSelect.value = type;
+            authorInput.value = author;
+            imageUrlInput.value = imageUrl;
+            linkInput.value = link;
+            formTitle.textContent = 'Таҳрири Огоҳинома';
+            submitBtn.textContent = 'Навсозӣ';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    
+        // Initial call to load notifications
+        loadNotifications();
     </script>
 </body>
 </html>
