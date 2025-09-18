@@ -88,9 +88,9 @@ html.dark .icon-btn:hover {
         <div class="glass-card p-8 rounded-2xl">
             <h1 class="text-3xl font-bold text-center mb-6">Вход в панель расписания</h1>
             <form id="login-form" class="space-y-4">
-                <input type="email" id="email" class="form-input w-full p-3 rounded-lg border" placeholder="Email" required>
-                <input type="password" id="password" class="form-input w-full p-3 rounded-lg border" placeholder="Пароль" required>
-                <button type="submit" class="w-full p-3 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 btn btn-primary">Войти</button>
+                <input type="email" id="email" class="form-input w-full p-3 rounded-3xl border" placeholder="Email" required>
+                <input type="password" id="password" class="form-input w-full p-3 rounded-3xl border" placeholder="Пароль" required>
+                <button type="submit" class="w-full p-3 rounded-3xl font-semibold text-white bg-blue-600 hover:bg-blue-700 btn btn-primary">Войти</button>
             </form>
         </div>
     </div>
@@ -101,14 +101,14 @@ html.dark .icon-btn:hover {
                 <h1 class="text-3xl sm:text-4xl font-bold">Управление Расписанием</h1>
                 <p class="text-lg opacity-70 mt-1">Вы вошли как <span id="admin-email" class="font-semibold"></span></p>
             </div>
-            <button id="logout-btn" class="p-3 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600">Выйти</button>
+            <button id="logout-btn" class="p-3 rounded-3xl font-semibold text-white bg-red-500 hover:bg-red-600">Выйти</button>
         </header>
 
         <div class="glass-card p-4 rounded-2xl mb-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Факультет</label><div class="flex items-center gap-2"><select id="facultySelect" class="form-input w-full p-3 rounded-lg"></select><button class="icon-btn" onclick="openHierarchyModal('faculties')" title="Управление факультетами">⚙️</button></div></div>
-                <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Курс</label><div class="flex items-center gap-2"><select id="courseSelect" class="form-input w-full p-3 rounded-lg"></select><button class="icon-btn" onclick="openHierarchyModal('courses')" title="Управление курсами">⚙️</button></div></div>
-                <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Группа</label><div class="flex items-center gap-2"><select id="groupSelect" class="form-input w-full p-3 rounded-lg"></select><button class="icon-btn" onclick="openHierarchyModal('groups')" title="Управление группами">⚙️</button></div></div>
+                <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Факультет</label><div class="flex items-center gap-2"><select id="facultySelect" class="form-input w-full p-3 rounded-2xl"></select><button class="icon-btn" onclick="openHierarchyModal('faculties')" title="Управление факультетами">⚙️</button></div></div>
+                <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Курс</label><div class="flex items-center gap-2"><select id="courseSelect" class="form-input w-full p-3 rounded-2xl"></select><button class="icon-btn" onclick="openHierarchyModal('courses')" title="Управление курсами">⚙️</button></div></div>
+                <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Группа</label><div class="flex items-center gap-2"><select id="groupSelect" class="form-input w-full p-3 rounded-2xl"></select><button class="icon-btn" onclick="openHierarchyModal('groups')" title="Управление группами">⚙️</button></div></div>
             </div>
         </div>
 
@@ -123,11 +123,11 @@ html.dark .icon-btn:hover {
                 <h4 id="hierarchyFormTitle" class="font-semibold mb-2">Добавить новый элемент</h4>
                 <form id="hierarchyForm" class="space-y-3">
                     <input type="hidden" id="hierarchyEditId">
-                    <input type="text" id="hierarchyItemName" class="form-input rounded-lg p-3 w-full" placeholder="Название" required>
-                    <input type="text" id="hierarchyItemId" class="form-input rounded-lg p-3 w-full" placeholder="ID" required>
+                    <input type="text" id="hierarchyItemName" class="form-input rounded-3xl p-3 w-full" placeholder="Название" required>
+                    <input type="text" id="hierarchyItemId" class="form-input rounded-3xl p-3 w-full" placeholder="ID" required>
                     <div class="flex gap-3">
-                        <button type="submit" id="addHierarchyItemBtn" class="btn bg-blue-600 w-full p-3 mt-2 rounded-lg font-semibold text-white">Добавить</button>
-                        <button type="button" id="cancelHierarchyEditBtn" class="btn bg-gray-500 w-full p-3 mt-2 rounded-lg font-semibold text-white" style="display:none;">Отмена</button>
+                        <button type="submit" id="addHierarchyItemBtn" class="btn bg-blue-600 w-full p-3 mt-2 rounded-3xl font-semibold text-white">Добавить</button>
+                        <button type="button" id="cancelHierarchyEditBtn" class="btn bg-gray-500 w-full p-3 mt-2 rounded-3xl font-semibold text-white" style="display:none;">Отмена</button>
                     </div>
                 </form>
             </div>
@@ -144,12 +144,12 @@ html.dark .icon-btn:hover {
                 <input type="hidden" id="editingDay">
                 <input type="hidden" id="editingIndex">
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label>Время начала</label><input id="lessonStartTime" type="time" class="form-input w-full p-3 rounded-lg" required></div>
-                    <div><label>Время окончания</label><input id="lessonEndTime" type="time" class="form-input w-full p-3 rounded-lg" required></div>
+                    <div><label>Время начала</label><input id="lessonStartTime" type="time" class="form-input w-full p-3 rounded-3xk" required></div>
+                    <div><label>Время окончания</label><input id="lessonEndTime" type="time" class="form-input w-full p-3 rounded-3xl" required></div>
                 </div>
-                <div><label>Аудитория</label><input id="lessonAud" type="text" class="form-input w-full p-3 rounded-lg" required></div>
-                <div><label>Предмет и преподаватель</label><input id="lessonSubject" type="text" class="form-input w-full p-3 rounded-lg" required></div>
-                <button type="submit" class="w-full p-3 mt-4 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700">Сохранить</button>
+                <div><label>Аудитория</label><input id="lessonAud" type="text" class="form-input w-full p-3 rounded-3xl" required></div>
+                <div><label>Предмет и преподаватель</label><input id="lessonSubject" type="text" class="form-input w-full p-3 rounded-3xl" required></div>
+                <button type="submit" class="w-full p-3 mt-4 rounded-3xl font-semibold text-white bg-blue-600 hover:bg-blue-700">Сохранить</button>
             </form>
         </div>
     </div>
@@ -382,3 +382,4 @@ function deleteHierarchyItem(itemId){if(!confirm(`Вы уверены? Это д
 const showToast = (text, type = "success") => { Toastify({ text, duration: 3000, gravity: "bottom", position: "right", style: { background: type === "success" ? "#10b981" : "#ef4444" } }).showToast(); };    </script>
 </body>
 </html>
+
