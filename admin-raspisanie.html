@@ -25,6 +25,7 @@ html.dark {
     --aurora-opacity: 0.4;
 }
 body { 
+    padding: 5px;
     font-family: 'Inter', sans-serif; 
     background-color: var(--bg-color); 
     color: var(--text-color); 
@@ -59,6 +60,32 @@ body {
 html.dark .icon-btn:hover { 
     background-color: rgba(255,255,255,0.1); 
 }
+    .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal.active {
+    display: flex;
+}
+.modal-content {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    max-width: 90%;
+}
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
 .modal { 
     position: fixed; 
     top: 0; 
@@ -76,100 +103,116 @@ html.dark .icon-btn:hover {
     display: flex; 
 }
 @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }    </style>
+    </style>
 </head>
-<body class="p-4 sm:p-6 lg:p-8">
-
+<body>
     <div class="aurora-container">
-        <div class="aurora-shape aurora-1"></div>
-        <div class="aurora-shape aurora-2"></div>
-    </div>
+    <div class="aurora-shape aurora-1"></div>
+    <div class="aurora-shape aurora-2"></div>
+</div>
 
-    <div id="login-container" class="max-w-md mx-auto mt-20">
-        <div class="glass-card p-8 rounded-2xl">
-            <h1 class="text-3xl font-bold text-center mb-6">Вход в панель расписания</h1>
-            <form id="login-form" class="space-y-4">
-                <input type="email" id="email" class="form-input w-full p-3 rounded-3xl border" placeholder="Email" required>
-                <input type="password" id="password" class="form-input w-full p-3 rounded-3xl border" placeholder="Пароль" required>
-                <button type="submit" class="w-full p-3 rounded-3xl font-semibold text-white bg-blue-600 hover:bg-blue-700 btn btn-primary">Войти</button>
-            </form>
+<div id="login-container" class="max-w-md mx-auto mt-20">
+    <div class="glass-card p-8 rounded-3xl">
+        <h1 class="text-3xl font-bold text-center mb-6">Вход в панель расписания</h1>
+        <form id="login-form" class="space-y-4">
+            <input type="email" id="email" class="form-input w-full p-3 rounded-3xl border" placeholder="Email" required>
+            <input type="password" id="password" class="form-input w-full p-3 rounded-3xl border" placeholder="Пароль" required>
+            <button type="submit" class="w-full p-3 rounded-3xl font-semibold text-white bg-blue-600 hover:bg-blue-700 btn btn-primary">Войти</button>
+        </form>
+    </div>
+</div>
+
+<div id="admin-dashboard" class="max-w-7xl mx-auto" style="display: none;">
+    <header class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl sm:text-4xl font-bold">Управление Расписанием</h1>
+            <p class="text-lg opacity-70 mt-1">Вы вошли как <span id="admin-email" class="font-semibold"></span></p>
         </div>
-    </div>
-
-    <div id="admin-dashboard" class="max-w-7xl mx-auto" style="display: none;">
-        <header class="flex justify-between items-center mb-6">
-            <div>
-                <h1 class="text-3xl sm:text-4xl font-bold">Управление Расписанием</h1>
-                <p class="text-lg opacity-70 mt-1">Вы вошли как <span id="admin-email" class="font-semibold"></span></p>
-            </div>
+        <div class="flex gap-3">
+            <button id="history-btn" class="p-3 rounded-3xl font-semibold text-white bg-green-500 hover:bg-green-600">История</button>
             <button id="logout-btn" class="p-3 rounded-3xl font-semibold text-white bg-red-500 hover:bg-red-600">Выйти</button>
-        </header>
-
-        <div class="glass-card p-4 rounded-2xl mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Факультет</label><div class="flex items-center gap-2"><select id="facultySelect" class="form-input w-full p-3 rounded-2xl"></select><button class="icon-btn" onclick="openHierarchyModal('faculties')" title="Управление факультетами">⚙️</button></div></div>
-                <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Курс</label><div class="flex items-center gap-2"><select id="courseSelect" class="form-input w-full p-3 rounded-2xl"></select><button class="icon-btn" onclick="openHierarchyModal('courses')" title="Управление курсами">⚙️</button></div></div>
-                <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Группа</label><div class="flex items-center gap-2"><select id="groupSelect" class="form-input w-full p-3 rounded-2xl"></select><button class="icon-btn" onclick="openHierarchyModal('groups')" title="Управление группами">⚙️</button></div></div>
-            </div>
         </div>
+    </header>
 
-        <div id="schedule-editor" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-    </div>
-
-    <div class="modal" id="hierarchyModal">
-        <div class="modal-content glass-card p-6 rounded-2xl">
-            <div class="flex justify-between items-center mb-4"><h3 id="hierarchyModalTitle" class="text-xl font-bold"></h3><button class="text-2xl opacity-70 hover:opacity-100" id="closeHierarchyModalBtn">&times;</button></div>
-            <ul id="hierarchyModalList" class="max-h-60 overflow-y-auto mb-4"></ul>
-            <div class="border-t border-[var(--border-color)] pt-4">
-                <h4 id="hierarchyFormTitle" class="font-semibold mb-2">Добавить новый элемент</h4>
-                <form id="hierarchyForm" class="space-y-3">
-                    <input type="hidden" id="hierarchyEditId">
-                    <input type="text" id="hierarchyItemName" class="form-input rounded-3xl p-3 w-full" placeholder="Название" required>
-                    <input type="text" id="hierarchyItemId" class="form-input rounded-3xl p-3 w-full" placeholder="ID" required>
-                    <div class="flex gap-3">
-                        <button type="submit" id="addHierarchyItemBtn" class="btn bg-blue-600 w-full p-3 mt-2 rounded-3xl font-semibold text-white">Добавить</button>
-                        <button type="button" id="cancelHierarchyEditBtn" class="btn bg-gray-500 w-full p-3 mt-2 rounded-3xl font-semibold text-white" style="display:none;">Отмена</button>
-                    </div>
-                </form>
-            </div>
+    <div class="glass-card p-4 rounded-2xl mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Факультет</label><div class="flex items-center gap-2"><select id="facultySelect" class="form-input w-full p-3 rounded-3xl"></select><button class="icon-btn" onclick="openHierarchyModal('faculties')" title="Управление факультетами">⚙️</button></div></div>
+            <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Курс</label><div class="flex items-center gap-2"><select id="courseSelect" class="form-input w-full p-3 rounded-3xl"></select><button class="icon-btn" onclick="openHierarchyModal('courses')" title="Управление курсами">⚙️</button></div></div>
+            <div class="form-group"><label class="block text-sm font-medium mb-2 opacity-80">Группа</label><div class="flex items-center gap-2"><select id="groupSelect" class="form-input w-full p-3 rounded-3xl"></select><button class="icon-btn" onclick="openHierarchyModal('groups')" title="Управление группами">⚙️</button></div></div>
         </div>
     </div>
-    
-    <div id="lessonModal" class="modal">
-        <div class="modal-content glass-card p-6 rounded-2xl w-full max-w-lg">
-             <div class="flex justify-between items-center mb-4">
-                <h3 id="lessonModalTitle" class="text-xl font-bold"></h3>
-                <button class="text-2xl" id="closeLessonModalBtn">&times;</button>
-            </div>
-            <form id="lessonForm" class="space-y-4">
-                <input type="hidden" id="editingDay">
-                <input type="hidden" id="editingIndex">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label>Время начала</label><input id="lessonStartTime" type="time" class="form-input w-full p-3 rounded-3xl" required></div>
-                    <div><label>Время окончания</label><input id="lessonEndTime" type="time" class="form-input w-full p-3 rounded-3xl" required></div>
+
+    <div id="schedule-editor" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</div>
+
+<div class="modal" id="hierarchyModal">
+    <div class="modal-content glass-card p-6 rounded-2xl">
+        <div class="flex justify-between items-center mb-4"><h3 id="hierarchyModalTitle" class="text-xl font-bold"></h3><button class="text-2xl opacity-70 hover:opacity-100" id="closeHierarchyModalBtn">&times;</button></div>
+        <ul id="hierarchyModalList" class="max-h-60 overflow-y-auto mb-4"></ul>
+        <div class="border-t border-[var(--border-color)] pt-4">
+            <h4 id="hierarchyFormTitle" class="font-semibold mb-2">Добавить новый элемент</h4>
+            <form id="hierarchyForm" class="space-y-3">
+                <input type="hidden" id="hierarchyEditId">
+                <input type="text" id="hierarchyItemName" class="form-input rounded-3xl p-3 w-full" placeholder="Название" required>
+                <input type="text" id="hierarchyItemId" class="form-input rounded-3xl p-3 w-full" placeholder="ID" required>
+                <div class="flex gap-3">
+                    <button type="submit" id="addHierarchyItemBtn" class="btn bg-blue-600 w-full p-3 mt-2 rounded-3xl font-semibold text-white">Добавить</button>
+                    <button type="button" id="cancelHierarchyEditBtn" class="btn bg-gray-500 w-full p-3 mt-2 rounded-3xl font-semibold text-white" style="display:none;">Отмена</button>
                 </div>
-                <div><label>Аудитория</label><input id="lessonAud" type="text" class="form-input w-full p-3 rounded-3xl" required></div>
-                <div><label>Предмет и преподаватель</label><input id="lessonSubject" type="text" class="form-input w-full p-3 rounded-3xl" required></div>
-                <button type="submit" class="w-full p-3 mt-4 rounded-3xl font-semibold text-white bg-blue-600 hover:bg-blue-700">Сохранить</button>
             </form>
         </div>
     </div>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script>
- const firebaseConfig = {
-    apiKey: "AIzaSyB3_Qs3pr6OK2JvyL7ViO09aFXjjt9qygQ",
-    authDomain: "tut-app-6aaae.firebaseapp.com",
-    databaseURL: "https://tut-app-6aaae-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "tut-app-6aaae",
-    storageBucket: "tut-app-6aaae.firebasestorage.app",
-    messagingSenderId: "726613480112",
-    appId: "1:726613480112:web:6e55cfb767ec8f6c5d6175",
-    measurementId: "G-DZ0XNZR35S"
-  };
-  firebase.initializeApp(firebaseConfig);
+</div>
+
+<div id="lessonModal" class="modal">
+    <div class="modal-content glass-card p-6 rounded-3xl w-full max-w-lg">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="lessonModalTitle" class="text-xl font-bold"></h3>
+            <button class="text-2xl" id="closeLessonModalBtn">&times;</button>
+        </div>
+        <form id="lessonForm" class="space-y-4">
+            <input type="hidden" id="editingDay">
+            <input type="hidden" id="editingIndex">
+            <div class="grid grid-cols-2 gap-4">
+                <div><label>Время начала</label><input id="lessonStartTime" type="time" class="form-input w-full p-3 rounded-3xl" required></div>
+                <div><label>Время окончания</label><input id="lessonEndTime" type="time" class="form-input w-full p-3 rounded-3xl" required></div>
+            </div>
+            <div><label>Аудитория</label><input id="lessonAud" type="text" class="form-input w-full p-3 rounded-3xl" required></div>
+            <div><label>Предмет и преподаватель</label><input id="lessonSubject" type="text" class="form-input w-full p-3 rounded-3xl" required></div>
+            <button type="submit" class="w-full p-3 mt-4 rounded-3xl font-semibold text-white bg-blue-600 hover:bg-blue-700">Сохранить</button>
+        </form>
+    </div>
+</div>
+
+<div id="historyModal" class="modal">
+    <div class="modal-content glass-card p-6 rounded-2xl w-full max-w-4xl">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold">История изменений</h3>
+            <button class="text-2xl opacity-70 hover:opacity-100" id="closeHistoryModalBtn">&times;</button>
+        </div>
+        <div class="mb-4 flex flex-col md:flex-row gap-4">
+            <input type="text" id="historySearch" class="form-input p-3 rounded-3xl w-full" placeholder="Поиск по действию или пользователю...">
+            <select id="historyFilterType" class="form-input p-3 rounded-3xl w-full md:w-auto">
+                <option value="">Все типы</option>
+                <option value="lesson_add">Добавление пары</option>
+                <option value="lesson_edit">Редактирование пары</option>
+                <option value="lesson_delete">Удаление пары</option>
+                <option value="hierarchy_add">Добавление элемента иерархии</option>
+                <option value="hierarchy_edit">Редактирование элемента иерархии</option>
+                <option value="hierarchy_delete">Удаление элемента иерархии</option>
+            </select>
+        </div>
+        <ul id="history-list" class="space-y-2 max-h-96 overflow-y-auto"></ul>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+const firebaseConfig = { apiKey: "AIzaSyB3_Qs3pr6OK2JvyL7ViO09aFXjjt9qygQ", authDomain: "tut-app-6aaae.firebaseapp.com", databaseURL: "https://tut-app-6aaae-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "tut-app-6aaae", storageBucket: "tut-app-6aaae.firebasestorage.app", messagingSenderId: "726613480112", appId: "1:726613480112:web:6e55cfb767ec8f6c5d6175", measurementId: "G-DZ0XNZR35S" };
+firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 let hierarchy = {}, currentSchedule = {}, currentHierarchyContext = {};
@@ -194,6 +237,7 @@ auth.onAuthStateChanged(user => {
         $('#admin-dashboard').style.display = 'none';
     }
 });
+
 document.addEventListener('DOMContentLoaded', () => {
     $('#login-form').addEventListener('submit', e => {
         e.preventDefault();
@@ -202,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('#logout-btn').addEventListener('click', () => auth.signOut());
 });
+
 function initDashboard() {
     db.ref('hierarchy').on('value', snapshot => {
         hierarchy = snapshot.val() || {};
@@ -215,23 +260,108 @@ function initDashboard() {
     $('#closeHierarchyModalBtn').addEventListener('click', () => $('#hierarchyModal').classList.remove('active'));
     $('#hierarchyForm').addEventListener('submit', handleHierarchyFormSubmit);
     $('#cancelHierarchyEditBtn').addEventListener('click', resetHierarchyForm);
+    $('#history-btn').addEventListener('click', openHistoryModal);
+    $('#closeHistoryModalBtn').addEventListener('click', () => $('#historyModal').classList.remove('active'));
+
+    // History search and filter listeners
+    $('#historySearch').addEventListener('input', renderHistoryList);
+    $('#historyFilterType').addEventListener('change', renderHistoryList);
+
+    // Load history into memory and render
+    db.ref('history').orderByChild('timestamp').limitToLast(100).on('value', snapshot => {
+        window.historyEntries = [];
+        snapshot.forEach(child => {
+            window.historyEntries.push({ key: child.key, ...child.val() });
+        });
+        window.historyEntries.reverse(); // Newest first
+        renderHistoryList();
+    });
+}
+
+// --- HISTORY MODAL ---
+function openHistoryModal() {
+    $('#historyModal').classList.add('active');
+    renderHistoryList();
+}
+
+function renderHistoryList() {
+    const list = $('#history-list');
+    const searchQuery = $('#historySearch').value.toLowerCase();
+    const filterType = $('#historyFilterType').value;
+
+    list.innerHTML = '';
+    const filteredEntries = window.historyEntries.filter(entry => {
+        const matchesSearch = (entry.user.toLowerCase().includes(searchQuery) || 
+                               entry.action.toLowerCase().includes(searchQuery) ||
+                               (entry.details && JSON.stringify(entry.details).toLowerCase().includes(searchQuery)));
+        const matchesType = !filterType || entry.type === filterType;
+        return matchesSearch && matchesType;
+    });
+
+    if (filteredEntries.length === 0) {
+        list.innerHTML = '<p class="text-center opacity-60">Нет записей, соответствующих фильтру.</p>';
+        return;
+    }
+
+    filteredEntries.forEach(entry => {
+        const dateStr = new Date(entry.timestamp).toLocaleString();
+        let detailsHtml = '';
+        if (entry.details) {
+            detailsHtml = '<ul class="ml-4 text-sm opacity-80">';
+            for (const [key, value] of Object.entries(entry.details)) {
+                let colorClass = '';
+                if (key.includes('старая') || key.includes('старое')) {
+                    colorClass = 'text-yellow-500';
+                } else if (key.includes('новая') || key.includes('новое')) {
+                    colorClass = 'text-green-500';
+                } else if (key.includes('удаленная') || key.includes('удаленный')) {
+                    colorClass = 'text-red-500';
+                }
+                detailsHtml += `<li class="${colorClass}"><strong>${key}:</strong> `;
+                if (typeof value === 'object' && value !== null) {
+                    detailsHtml += '<ul class="ml-4">';
+                    for (const [subkey, subval] of Object.entries(value)) {
+                        detailsHtml += `<li>${subkey}: ${subval}</li>`;
+                    }
+                    detailsHtml += '</ul>';
+                } else {
+                    detailsHtml += `${value}`;
+                }
+                detailsHtml += '</li>';
+            }
+            detailsHtml += '</ul>';
+        }
+        list.innerHTML += `
+            <li class="p-3 border-b border-[var(--border-color)] rounded-lg bg-[var(--input-bg)]">
+                <div class="flex justify-between mb-1">
+                    <span class="font-semibold">${dateStr}</span>
+                    <span class="opacity-70">${entry.user}</span>
+                </div>
+                <p class="font-medium">${entry.action}</p>
+                ${detailsHtml}
+            </li>`;
+    });
 }
 
 // --- HIERARCHY POPULATION ---
 function populateFaculties() {
     const currentVal = $('#facultySelect').value;
     const select = $('#facultySelect');
-    select.innerHTML = "<option value=''>Факультет</option>";
+    select.innerHTML = '<option value="">Факультет</option>';
     for (const key in hierarchy) select.add(new Option(hierarchy[key].name, key));
     select.value = currentVal;
     populateCourses();
 }
+
 function populateCourses() {
     const currentVal = $('#courseSelect').value;
     const facultyId = $('#facultySelect').value;
     const select = $('#courseSelect');
-    select.innerHTML = "<option value=''>Курс</option>";
-    if (!facultyId) { populateGroups(); return; }
+    select.innerHTML = '<option value="">Курс</option>';
+    if (!facultyId) {
+        populateGroups();
+        return;
+    }
     const faculty = hierarchy[facultyId];
     if (faculty && faculty.courses) {
         for (const key in faculty.courses) select.add(new Option(faculty.courses[key].name, key));
@@ -239,13 +369,17 @@ function populateCourses() {
     select.value = currentVal;
     populateGroups();
 }
+
 function populateGroups() {
     const currentVal = $('#groupSelect').value;
     const facultyId = $('#facultySelect').value;
     const courseId = $('#courseSelect').value;
     const select = $('#groupSelect');
-    select.innerHTML = "<option value=''>Группа</option>";
-    if (!courseId) { handleGroupSelection(); return; }
+    select.innerHTML = '<option value="">Группа</option>';
+    if (!courseId) {
+        handleGroupSelection();
+        return;
+    }
     const course = hierarchy[facultyId]?.courses?.[courseId];
     if (course && course.groups) {
         for (const key in course.groups) select.add(new Option(course.groups[key].name, key));
@@ -254,18 +388,12 @@ function populateGroups() {
     handleGroupSelection();
 }
 
-// Функция, которая применяет тему (добавляет или удаляет класс 'dark' на <html>)
+// Theme handling
 const toggleDarkTheme = (isDark) => {
     document.documentElement.classList.toggle('dark', isDark);
 };
-
-// Отслеживаем системные настройки
 const themeMatcher = window.matchMedia('(prefers-color-scheme: dark)');
-
-// Устанавливаем тему при первой загрузке страницы
 toggleDarkTheme(themeMatcher.matches);
-
-// Слушаем изменения системной темы и автоматически обновляем сайт
 themeMatcher.addEventListener('change', e => toggleDarkTheme(e.matches));
 
 // --- SCHEDULE MANAGEMENT ---
@@ -277,7 +405,7 @@ function handleGroupSelection() {
     }
     if (!pathIds.f || !pathIds.c || !pathIds.g) {
         currentSchedule = {};
-        editorDiv.innerHTML = '<p class="text-center opacity-70 col-span-full">Выберите группу для редактирования расписания.</p>';
+        editorDiv.innerHTML = '<p class="text-center opacity-70">Выберите группу для редактирования расписания.</p>';
         return;
     }
     const schedulePath = `schedules/${pathIds.f}/${pathIds.c}/${pathIds.g}`;
@@ -289,25 +417,40 @@ function handleGroupSelection() {
     $('#schedule-editor')._listener = listener;
     $('#schedule-editor')._path = schedulePath;
 }
+
 function renderScheduleEditor() {
     const editorDiv = $('#schedule-editor');
     editorDiv.innerHTML = '';
     const days = ['Душанбе', 'Сешанбе', 'Чоршанбе', 'Панҷшанбе', 'Ҷумъа', 'Шанбе'];
     days.forEach(day => {
-        let dayHTML = `<div class="glass-card rounded-2xl p-4 flex flex-col"><h3 class="font-bold text-lg mb-3">${day}</h3><div class="space-y-2 flex-grow">`;
+        let dayHTML = `<div class="glass-card rounded-2xl p-4 flex flex-col">
+            <h3 class="font-bold text-lg mb-3">${day}</h3>
+            <div class="space-y-2 flex-grow">`;
         const lessons = currentSchedule[day] || [];
         if (lessons.length > 0) {
             lessons.forEach((lesson, index) => {
                 const timeText = lesson.startTime && lesson.endTime ? `${lesson.startTime} - ${lesson.endTime}` : (lesson.time || 'N/A');
-                dayHTML += `<div class="bg-white/50 dark:bg-black/20 p-2 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-sm">${lesson.subject}</p><p class="text-xs opacity-70">${timeText} / ${lesson.aud}</p></div><div class="flex gap-1"><button class="icon-btn" onclick="openLessonModal('${day}', ${index})">✏️</button><button class="icon-btn" onclick="deleteLesson('${day}', ${index})">🗑️</button></div></div>`;
+                dayHTML += `<div class="bg-white/50 dark:bg-black/20 p-2 rounded-lg flex justify-between items-center">
+                    <div>
+                        <p class="font-semibold text-sm">${lesson.subject}</p>
+                        <p class="text-xs opacity-70">${timeText} / ${lesson.aud}</p>
+                    </div>
+                    <div class="flex gap-1">
+                        <button class="icon-btn" onclick="openLessonModal('${day}', ${index})">✏️</button>
+                        <button class="icon-btn" onclick="deleteLesson('${day}', ${index})">🗑️</button>
+                    </div>
+                </div>`;
             });
         } else {
-            dayHTML += `<p class="text-center text-sm opacity-60 mt-4">Пар нет</p>`;
+            dayHTML += '<p class="text-center text-sm opacity-60 mt-4">Пар нет</p>';
         }
-        dayHTML += `</div><button class="mt-4 w-full bg-blue-500 text-white text-sm font-semibold rounded-lg py-2 hover:bg-blue-600" onclick="openLessonModal('${day}')">Добавить пару</button></div>`;
+        dayHTML += `</div>
+            <button class="mt-4 w-full bg-blue-500 text-white text-sm font-semibold rounded-lg py-2 hover:bg-blue-600" onclick="openLessonModal('${day}')">Добавить пару</button>
+        </div>`;
         editorDiv.innerHTML += dayHTML;
     });
 }
+
 window.openLessonModal = (day, index = -1) => {
     $('#lessonForm').reset();
     $('#editingDay').value = day;
@@ -317,10 +460,10 @@ window.openLessonModal = (day, index = -1) => {
         const lesson = currentSchedule[day][index];
         $('#lessonStartTime').value = lesson.startTime || '';
         $('#lessonEndTime').value = lesson.endTime || '';
-        if (lesson.time && !lesson.startTime) { // Compatibility with old format
-             const times = lesson.time.split('-');
-             $('#lessonStartTime').value = times[0] || '';
-             $('#lessonEndTime').value = times[1] || '';
+        if (lesson.time && !lesson.startTime) {
+            const times = lesson.time.split('-');
+            $('#lessonStartTime').value = times[0] || '';
+            $('#lessonEndTime').value = times[1] || '';
         }
         $('#lessonAud').value = lesson.aud;
         $('#lessonSubject').value = lesson.subject;
@@ -329,32 +472,67 @@ window.openLessonModal = (day, index = -1) => {
     }
     $('#lessonModal').classList.add('active');
 }
+
 function saveLesson(e) {
     e.preventDefault();
     const day = $('#editingDay').value;
     const index = parseInt($('#editingIndex').value);
-    const newLesson = { 
-        startTime: $('#lessonStartTime').value, 
-        endTime: $('#lessonEndTime').value, 
-        aud: $('#lessonAud').value, 
-        subject: $('#lessonSubject').value 
+    const newLesson = {
+        startTime: $('#lessonStartTime').value,
+        endTime: $('#lessonEndTime').value,
+        aud: $('#lessonAud').value,
+        subject: $('#lessonSubject').value
     };
-    let updatedDaySchedule = Array.isArray(currentSchedule[day]) ? [...currentSchedule[day]] : [];
-    if (index > -1) { updatedDaySchedule[index] = newLesson; } 
-    else { updatedDaySchedule.push(newLesson); }
     const pathIds = { f: $('#facultySelect').value, c: $('#courseSelect').value, g: $('#groupSelect').value };
+    let oldLesson = null;
+    if (index > -1) {
+        oldLesson = currentSchedule[day][index];
+    }
+    let updatedDaySchedule = Array.isArray(currentSchedule[day]) ? [...currentSchedule[day]] : [];
+    if (index > -1) {
+        updatedDaySchedule[index] = newLesson;
+    } else {
+        updatedDaySchedule.push(newLesson);
+    }
     const dayPath = `schedules/${pathIds.f}/${pathIds.c}/${pathIds.g}/${day}`;
     db.ref(dayPath).set(updatedDaySchedule)
-        .then(() => { showToast('Расписание сохранено!'); $('#lessonModal').classList.remove('active'); })
-        .catch(err => { console.error(err); showToast('Ошибка сохранения', 'error'); });
+        .then(() => {
+            const type = (index > -1) ? 'lesson_edit' : 'lesson_add';
+            const action = (index > -1) ? `Пара отредактирована для дня "${day}" в группе "${pathIds.g}"` : `Пара добавлена для дня "${day}" в группе "${pathIds.g}"`;
+            const details = {
+                группа: `${pathIds.f}/${pathIds.c}/${pathIds.g}`,
+                старая_пара: oldLesson ? oldLesson : null,
+                новая_пара: newLesson
+            };
+            logAction(type, action, details);
+            showToast('Расписание сохранено!');
+            $('#lessonModal').classList.remove('active');
+        })
+        .catch(err => {
+            console.error(err);
+            showToast('Ошибка сохранения', 'error');
+        });
 }
-function deleteLesson(day, index) {
+
+window.deleteLesson = (day, index) => {
     if (!confirm('Вы уверены?')) return;
+    const deletedLesson = currentSchedule[day][index];
     let updatedDaySchedule = [...currentSchedule[day]];
     updatedDaySchedule.splice(index, 1);
     const pathIds = { f: $('#facultySelect').value, c: $('#courseSelect').value, g: $('#groupSelect').value };
     const dayPath = `schedules/${pathIds.f}/${pathIds.c}/${pathIds.g}/${day}`;
-    db.ref(dayPath).set(updatedDaySchedule).then(() => showToast('Пара удалена!')).catch(err => showToast('Ошибка удаления', 'error'));
+    db.ref(dayPath).set(updatedDaySchedule)
+        .then(() => {
+            const type = 'lesson_delete';
+            const action = `Пара удалена для дня "${day}" в группе "${pathIds.g}"`;
+            const details = {
+                группа: `${pathIds.f}/${pathIds.c}/${pathIds.g}`,
+                удаленная_пара: deletedLesson
+            };
+            logAction(type, action, details);
+            showToast('Пара удалена!');
+        })
+        .catch(err => showToast('Ошибка удаления', 'error'));
 }
 
 // --- HIERARCHY MANAGEMENT ---
@@ -364,23 +542,137 @@ window.openHierarchyModal = (level) => {
     let items = {}, parentPath = 'hierarchy', title = '';
     const pathIds = { f: $("#facultySelect").value, c: $("#courseSelect").value };
     try {
-        if (level === 'faculties') { title = 'Управление факультетами'; items = hierarchy || {}; } 
-        else if (level === 'courses') { if (!pathIds.f) throw new Error('Сначала выберите факультет'); title = `Курсы: ${hierarchy[pathIds.f].name}`; items = hierarchy[pathIds.f].courses || {}; parentPath += `/${pathIds.f}/courses`; }
-        else if (level === 'groups') { if (!pathIds.c) throw new Error('Сначала выберите курс'); title = `Группы: ${hierarchy[pathIds.f].courses[pathIds.c].name}`; items = hierarchy[pathIds.f].courses[pathIds.c].groups || {}; parentPath += `/${pathIds.f}/courses/${pathIds.c}/groups`; }
-    } catch (e) { showToast(e.message, 'error'); return; }
+        if (level === 'faculties') {
+            title = 'Управление факультетами';
+            items = hierarchy || {};
+        } else if (level === 'courses') {
+            if (!pathIds.f) throw new Error('Сначала выберите факультет');
+            title = `Курсы: ${hierarchy[pathIds.f].name}`;
+            items = hierarchy[pathIds.f].courses || {};
+            parentPath += `/${pathIds.f}/courses`;
+        } else if (level === 'groups') {
+            if (!pathIds.c) throw new Error('Сначала выберите курс');
+            title = `Группы: ${hierarchy[pathIds.f].courses[pathIds.c].name}`;
+            items = hierarchy[pathIds.f].courses[pathIds.c].groups || {};
+            parentPath += `/${pathIds.f}/courses/${pathIds.c}/groups`;
+        }
+    } catch (e) {
+        showToast(e.message, 'error');
+        return;
+    }
     currentHierarchyContext = { level, parentPath, pathIds };
     $("#hierarchyModalTitle").textContent = title;
     list.innerHTML = '';
-    if (!items || Object.keys(items).length === 0) { list.innerHTML = '<li class="p-2 text-center opacity-70">Список пуст.</li>'; }
-    else { for (const key in items) { list.innerHTML += `<li class="flex justify-between items-center p-2 border-b border-[var(--border-color)]"><span>${items[key].name} <em class="text-xs opacity-50">(${key})</em></span><div class="flex gap-2"><button class="icon-btn" onclick="startEditHierarchyItem('${key}', '${items[key].name}')" title="Редактировать">✏️</button><button class="icon-btn text-red-500" onclick="deleteHierarchyItem('${key}')" title="Удалить">🗑️</button></div></li>`; } }
+    if (!items || Object.keys(items).length === 0) {
+        list.innerHTML = '<p class="text-center opacity-60">Список пуст.</p>';
+    } else {
+        for (const key in items) {
+            list.innerHTML += `<li class="flex justify-between items-center p-2 border-b border-[var(--border-color)]">
+                <span>${items[key].name} <em class="text-xs opacity-50">(${key})</em></span>
+                <div class="flex gap-2">
+                    <button class="icon-btn" onclick="startEditHierarchyItem('${key}', '${items[key].name}')" title="Редактировать">✏️</button>
+                    <button class="icon-btn text-red-500" onclick="deleteHierarchyItem('${key}')" title="Удалить">🗑️</button>
+                </div>
+            </li>`;
+        }
+    }
     modal.classList.add("active");
 }
-function handleHierarchyFormSubmit(e){e.preventDefault();const t=$("#hierarchyItemName").value.trim(),o=$("#hierarchyItemId").value.trim(),n=$("#hierarchyEditId").value;if(!t||!o)return void showToast("Введите ID и Название","error");const a=n||o,l=currentHierarchyContext.parentPath+"/"+a;db.ref(l).set({name:t}).then(()=>{showToast(`Элемент успешно ${n?"обновлен":"добавлен"}!`),resetHierarchyForm()}).catch(e=>showToast(`Ошибка: ${e.message}`,"error"))}
-window.startEditHierarchyItem=(t,e)=>{$("#hierarchyEditId").value=t,$("#hierarchyItemName").value=e,$("#hierarchyItemId").value=t,$("#hierarchyItemId").disabled=!0,$("#hierarchyFormTitle").textContent="Редактировать элемент",$("#addHierarchyItemBtn").textContent="Сохранить изменения",$("#cancelHierarchyEditBtn").style.display="block"};
-function resetHierarchyForm(){$("#hierarchyForm").reset(),$("#hierarchyEditId").value="",$("#hierarchyItemId").disabled=!1,$("#hierarchyFormTitle").textContent="Добавить новый элемент",$("#addHierarchyItemBtn").textContent="Добавить",$("#cancelHierarchyEditBtn").style.display="none"}
-function deleteHierarchyItem(itemId){if(!confirm(`Вы уверены? Это действие удалит элемент и ВСЕ вложенные в него данные!`))return;const{level,parentPath,pathIds}=currentHierarchyContext,updates={};const hierarchyPath=parentPath+"/"+itemId;updates[hierarchyPath]=null;if(level==="faculties")updates[`/schedules/${itemId}`]=null;else if(level==="courses")updates[`/schedules/${pathIds.f}/${itemId}`]=null;else if(level==="groups")updates[`/schedules/${pathIds.f}/${pathIds.c}/${itemId}`]=null;db.ref().update(updates).then(()=>showToast("Элемент и связанные расписания удалены.")).catch(e=>showToast(`Ошибка: ${e.message}`,"error"))};
-const showToast = (text, type = "success") => { Toastify({ text, duration: 3000, gravity: "bottom", position: "right", style: { background: type === "success" ? "#10b981" : "#ef4444" } }).showToast(); };    </script>
+
+function handleHierarchyFormSubmit(e) {
+    e.preventDefault();
+    const name = $("#hierarchyItemName").value.trim();
+    const id = $("#hierarchyItemId").value.trim();
+    const editId = $("#hierarchyEditId").value;
+    if (!name || !id) return showToast("Введите ID и Название", "error");
+    const finalId = editId || id;
+    const oldName = editId ? hierarchy[currentHierarchyContext.pathIds.f]?.courses?.[editId]?.name || hierarchy[editId]?.name || '' : null;
+    const type = editId ? 'hierarchy_edit' : 'hierarchy_add';
+    const action = editId ? `Элемент иерархии (${currentHierarchyContext.level}) "${name}" (${finalId}) обновлен` : `Элемент иерархии (${currentHierarchyContext.level}) "${name}" (${finalId}) добавлен`;
+    const details = {
+        уровень: currentHierarchyContext.level,
+        старое_название: oldName,
+        новое_название: name
+    };
+    const hierarchyPath = `${currentHierarchyContext.parentPath}/${finalId}`;
+    db.ref(hierarchyPath).set({ name })
+        .then(() => {
+            logAction(type, action, details);
+            showToast(`Элемент успешно ${editId ? 'обновлен' : 'добавлен'}!`);
+            resetHierarchyForm();
+            openHierarchyModal(currentHierarchyContext.level);
+        })
+        .catch(e => showToast(`Ошибка: ${e.message}`, "error"));
+}
+
+window.startEditHierarchyItem = (id, name) => {
+    $("#hierarchyEditId").value = id;
+    $("#hierarchyItemName").value = name;
+    $("#hierarchyItemId").value = id;
+    $("#hierarchyItemId").disabled = true;
+    $("#hierarchyFormTitle").textContent = "Редактировать элемент";
+    $("#addHierarchyItemBtn").textContent = "Сохранить изменения";
+    $("#cancelHierarchyEditBtn").style.display = "block";
+}
+
+function resetHierarchyForm() {
+    $("#hierarchyForm").reset();
+    $("#hierarchyEditId").value = "";
+    $("#hierarchyItemId").disabled = false;
+    $("#hierarchyFormTitle").textContent = "Добавить новый элемент";
+    $("#addHierarchyItemBtn").textContent = "Добавить";
+    $("#cancelHierarchyEditBtn").style.display = "none";
+}
+
+window.deleteHierarchyItem = (itemId) => {
+    if (!confirm('Вы уверены? Это действие удалит элемент и ВСЕ вложенные в него данные!')) return;
+    const { level, parentPath, pathIds } = currentHierarchyContext;
+    const deletedName = hierarchy[pathIds.f]?.courses?.[itemId]?.name || hierarchy[itemId]?.name || itemId;
+    const updates = {};
+    const hierarchyPath = `${parentPath}/${itemId}`;
+    updates[hierarchyPath] = null;
+    if (level === "faculties") updates[`/schedules/${itemId}`] = null;
+    else if (level === "courses") updates[`/schedules/${pathIds.f}/${itemId}`] = null;
+    else if (level === "groups") updates[`/schedules/${pathIds.f}/${pathIds.c}/${itemId}`] = null;
+    db.ref().update(updates)
+        .then(() => {
+            const type = 'hierarchy_delete';
+            const action = `Элемент иерархии (${level}) "${deletedName}" (${itemId}) удален вместе с связанными данными`;
+            const details = {
+                уровень: level,
+                удаленный_элемент: { id: itemId, name: deletedName }
+            };
+            logAction(type, action, details);
+            showToast("Элемент и связанные расписания удалены.");
+            resetHierarchyForm();
+            openHierarchyModal(level);
+        })
+        .catch(e => showToast(`Ошибка: ${e.message}`, "error"));
+}
+
+// --- HISTORY LOGGING ---
+function logAction(type, action, details = {}) {
+    db.ref('history').push({
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        user: auth.currentUser.email,
+        type: type,
+        action: action,
+        details: details
+    });
+}
+
+// --- TOAST ---
+const showToast = (text, type = "success") => {
+    Toastify({
+        text,
+        duration: 3000,
+        gravity: "bottom",
+        position: "right",
+        style: { background: type === "success" ? "#10b981" : "#ef4444" }
+    }).showToast();
+};
+</script>
+
+ 
 </body>
 </html>
-
-
