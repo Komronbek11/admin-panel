@@ -60,56 +60,45 @@ body {
 html.dark .icon-btn:hover { 
     background-color: rgba(255,255,255,0.1); 
 }
-    .modal {
+.modal {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    backdrop-filter: blur(5px);
 }
 .modal.active {
     display: flex;
 }
 .modal-content {
-    background: white;
+    background: var(--bg-color);
     border-radius: 1rem;
     padding: 1.5rem;
     max-width: 90%;
+    border: 1px solid var(--border-color);
 }
-.glass-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+/* Styles for Drag and Drop */
+.lesson-card.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    transform: scale(1.05);
 }
-.modal { 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    right: 0; 
-    bottom: 0; 
-    background: rgba(0,0,0,0.6); 
-    display: none; 
-    align-items: center; 
-    justify-content: center; 
-    z-index: 1000; 
-    backdrop-filter: blur(5px); 
+.day-lessons-container.drag-over {
+    border: 2px dashed var(--border-color);
+    background-color: rgba(0,0,0,0.02);
 }
-.modal.active { 
-    display: flex; 
+html.dark .day-lessons-container.drag-over {
+    background-color: rgba(255,255,255,0.02);
 }
-@keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }    </style>
-    </style>
+</style>
 </head>
 <body>
-    <div class="aurora-container">
-    <div class="aurora-shape aurora-1"></div>
-    <div class="aurora-shape aurora-2"></div>
-</div>
 
 <div id="login-container" class="max-w-md mx-auto mt-20">
     <div class="glass-card p-8 rounded-3xl">
@@ -177,8 +166,8 @@ html.dark .icon-btn:hover {
                 <div><label>Время начала</label><input id="lessonStartTime" type="time" class="form-input w-full p-3 rounded-3xl" required></div>
                 <div><label>Время окончания</label><input id="lessonEndTime" type="time" class="form-input w-full p-3 rounded-3xl" required></div>
             </div>
-            <div><label>Аудитория</label><input id="lessonAud" type="text" class="form-input w-full p-3 rounded-3xl" required></div>
-            <div><label>Предмет и преподаватель</label><input id="lessonSubject" type="text" class="form-input w-full p-3 rounded-3xl" required></div>
+            <div><label>Аудитория</label><input id="lessonAud" type="text" class="form-input w-full p-3 rounded-3xl" placeholder="Аудитория" required></div>
+            <div><label>Предмет и преподаватель</label><input id="lessonSubject" type="text" class="form-input w-full p-3 rounded-3xl" placeholder="Предмет и преподаватель" required></div>
             <button type="submit" class="w-full p-3 mt-4 rounded-3xl font-semibold text-white bg-blue-600 hover:bg-blue-700">Сохранить</button>
         </form>
     </div>
@@ -197,6 +186,7 @@ html.dark .icon-btn:hover {
                 <option value="lesson_add">Добавление пары</option>
                 <option value="lesson_edit">Редактирование пары</option>
                 <option value="lesson_delete">Удаление пары</option>
+                <option value="lesson_reorder">Изменение порядка пар</option>
                 <option value="hierarchy_add">Добавление элемента иерархии</option>
                 <option value="hierarchy_edit">Редактирование элемента иерархии</option>
                 <option value="hierarchy_delete">Удаление элемента иерархии</option>
@@ -216,6 +206,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 let hierarchy = {}, currentSchedule = {}, currentHierarchyContext = {};
+let lastAddedLessonDetails = { subject: '', aud: '' };
 const $ = (selector) => document.querySelector(selector);
 
 // --- AUTH & INIT ---
@@ -251,6 +242,7 @@ function initDashboard() {
     db.ref('hierarchy').on('value', snapshot => {
         hierarchy = snapshot.val() || {};
         populateFaculties();
+        if (window.historyEntries) renderHistoryList(); // Re-render history if hierarchy data changes
     });
     $('#facultySelect').addEventListener('change', populateCourses);
     $('#courseSelect').addEventListener('change', populateGroups);
@@ -263,18 +255,18 @@ function initDashboard() {
     $('#history-btn').addEventListener('click', openHistoryModal);
     $('#closeHistoryModalBtn').addEventListener('click', () => $('#historyModal').classList.remove('active'));
 
-    // History search and filter listeners
     $('#historySearch').addEventListener('input', renderHistoryList);
     $('#historyFilterType').addEventListener('change', renderHistoryList);
 
-    // Load history into memory and render
-    db.ref('history').orderByChild('timestamp').limitToLast(100).on('value', snapshot => {
+    db.ref('history').orderByChild('timestamp').limitToLast(200).on('value', snapshot => {
         window.historyEntries = [];
         snapshot.forEach(child => {
             window.historyEntries.push({ key: child.key, ...child.val() });
         });
-        window.historyEntries.reverse(); // Newest first
-        renderHistoryList();
+        window.historyEntries.reverse();
+        if ($('#historyModal').classList.contains('active')) {
+            renderHistoryList();
+        }
     });
 }
 
@@ -284,14 +276,29 @@ function openHistoryModal() {
     renderHistoryList();
 }
 
+// ✨ NEW: Helper to get human-readable path from IDs
+function getHumanReadablePath(pathStr) {
+    if (!pathStr || !hierarchy) return pathStr;
+    const [fId, cId, gId] = pathStr.split('/');
+    const facultyName = hierarchy[fId]?.name || `(${fId})`;
+    const courseName = hierarchy[fId]?.courses?.[cId]?.name || `(${cId})`;
+    const groupName = hierarchy[fId]?.courses?.[cId]?.groups?.[gId]?.name || `(${gId})`;
+    return `${facultyName} / ${courseName} / ${groupName}`;
+}
+
 function renderHistoryList() {
     const list = $('#history-list');
     const searchQuery = $('#historySearch').value.toLowerCase();
     const filterType = $('#historyFilterType').value;
 
     list.innerHTML = '';
+    if (!window.historyEntries) {
+        list.innerHTML = '<p class="text-center opacity-60">Загрузка истории...</p>';
+        return;
+    }
+
     const filteredEntries = window.historyEntries.filter(entry => {
-        const matchesSearch = (entry.user.toLowerCase().includes(searchQuery) || 
+        const matchesSearch = (entry.user.toLowerCase().includes(searchQuery) ||
                                entry.action.toLowerCase().includes(searchQuery) ||
                                (entry.details && JSON.stringify(entry.details).toLowerCase().includes(searchQuery)));
         const matchesType = !filterType || entry.type === filterType;
@@ -308,15 +315,17 @@ function renderHistoryList() {
         let detailsHtml = '';
         if (entry.details) {
             detailsHtml = '<ul class="ml-4 text-sm opacity-80">';
-            for (const [key, value] of Object.entries(entry.details)) {
-                let colorClass = '';
-                if (key.includes('старая') || key.includes('старое')) {
-                    colorClass = 'text-yellow-500';
-                } else if (key.includes('новая') || key.includes('новое')) {
-                    colorClass = 'text-green-500';
-                } else if (key.includes('удаленная') || key.includes('удаленный')) {
-                    colorClass = 'text-red-500';
+            for (let [key, value] of Object.entries(entry.details)) {
+                // ✨ UPDATED: Convert group path ID to human-readable name
+                if (key.toLowerCase() === 'группа' && typeof value === 'string' && value.includes('/')) {
+                    value = getHumanReadablePath(value);
                 }
+
+                let colorClass = '';
+                if (key.includes('старая') || key.includes('старое')) colorClass = 'text-yellow-500';
+                else if (key.includes('новая') || key.includes('новое')) colorClass = 'text-green-500';
+                else if (key.includes('удаленная') || key.includes('удаленный')) colorClass = 'text-red-500';
+
                 detailsHtml += `<li class="${colorClass}"><strong>${key}:</strong> `;
                 if (typeof value === 'object' && value !== null) {
                     detailsHtml += '<ul class="ml-4">';
@@ -342,6 +351,7 @@ function renderHistoryList() {
             </li>`;
     });
 }
+
 
 // --- HIERARCHY POPULATION ---
 function populateFaculties() {
@@ -389,9 +399,7 @@ function populateGroups() {
 }
 
 // Theme handling
-const toggleDarkTheme = (isDark) => {
-    document.documentElement.classList.toggle('dark', isDark);
-};
+const toggleDarkTheme = (isDark) => document.documentElement.classList.toggle('dark', isDark);
 const themeMatcher = window.matchMedia('(prefers-color-scheme: dark)');
 toggleDarkTheme(themeMatcher.matches);
 themeMatcher.addEventListener('change', e => toggleDarkTheme(e.matches));
@@ -405,7 +413,7 @@ function handleGroupSelection() {
     }
     if (!pathIds.f || !pathIds.c || !pathIds.g) {
         currentSchedule = {};
-        editorDiv.innerHTML = '<p class="text-center opacity-70">Выберите группу для редактирования расписания.</p>';
+        editorDiv.innerHTML = '<p class="text-center opacity-70 col-span-full">Выберите группу для редактирования расписания.</p>';
         return;
     }
     const schedulePath = `schedules/${pathIds.f}/${pathIds.c}/${pathIds.g}`;
@@ -425,13 +433,14 @@ function renderScheduleEditor() {
     days.forEach(day => {
         let dayHTML = `<div class="glass-card rounded-2xl p-4 flex flex-col">
             <h3 class="font-bold text-lg mb-3">${day}</h3>
-            <div class="space-y-2 flex-grow">`;
+            <div class="day-lessons-container space-y-2 flex-grow" data-day="${day}">`;
         const lessons = currentSchedule[day] || [];
         if (lessons.length > 0) {
             lessons.forEach((lesson, index) => {
                 const timeText = lesson.startTime && lesson.endTime ? `${lesson.startTime} - ${lesson.endTime}` : (lesson.time || 'N/A');
-                dayHTML += `<div class="bg-white/50 dark:bg-black/20 p-2 rounded-lg flex justify-between items-center">
-                    <div>
+                // ✨ UPDATED: Added draggable attribute and data-index for drag-and-drop
+                dayHTML += `<div class="lesson-card bg-white/50 dark:bg-black/20 p-2 rounded-lg flex justify-between items-center" draggable="true" data-index="${index}">
+                    <div class="flex-grow cursor-move">
                         <p class="font-semibold text-sm">${lesson.subject}</p>
                         <p class="text-xs opacity-70">${timeText} / ${lesson.aud}</p>
                     </div>
@@ -449,12 +458,89 @@ function renderScheduleEditor() {
         </div>`;
         editorDiv.innerHTML += dayHTML;
     });
+    // ✨ NEW: Add drag-and-drop event listeners after rendering
+    addDragAndDropListeners();
 }
+
+
+// ✨ NEW: Drag and Drop functionality
+let draggedItem = null;
+function addDragAndDropListeners() {
+    const lessonCards = document.querySelectorAll('.lesson-card');
+    const containers = document.querySelectorAll('.day-lessons-container');
+
+    lessonCards.forEach(card => {
+        card.addEventListener('dragstart', (e) => {
+            draggedItem = e.target.closest('.lesson-card');
+            setTimeout(() => e.target.closest('.lesson-card').classList.add('dragging'), 0);
+        });
+        card.addEventListener('dragend', () => {
+            draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        });
+    });
+
+    containers.forEach(container => {
+        container.addEventListener('dragover', e => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(container, e.clientY);
+            const currentlyDragged = document.querySelector('.dragging');
+            if (afterElement == null) {
+                container.appendChild(currentlyDragged);
+            } else {
+                container.insertBefore(currentlyDragged, afterElement);
+            }
+        });
+        container.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const day = container.dataset.day;
+            const newOrder = Array.from(container.querySelectorAll('.lesson-card'))
+                                .map(card => parseInt(card.dataset.index));
+            reorderLessons(day, newOrder);
+        });
+    });
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.lesson-card:not(.dragging)')];
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function reorderLessons(day, newOrderIndices) {
+    const originalDaySchedule = [...(currentSchedule[day] || [])];
+    if (originalDaySchedule.length === 0) return;
+
+    const reorderedSchedule = newOrderIndices.map(index => originalDaySchedule[index]);
+    
+    const pathIds = { f: $('#facultySelect').value, c: $('#courseSelect').value, g: $('#groupSelect').value };
+    const dayPath = `schedules/${pathIds.f}/${pathIds.c}/${pathIds.g}/${day}`;
+    
+    db.ref(dayPath).set(reorderedSchedule)
+        .then(() => {
+            logAction('lesson_reorder', `Изменен порядок пар для дня "${day}"`, { группа: `${pathIds.f}/${pathIds.c}/${pathIds.g}` });
+            showToast('Порядок пар обновлен!');
+        })
+        .catch(err => {
+            console.error(err);
+            showToast('Ошибка изменения порядка пар.', 'error');
+        });
+}
+
 
 window.openLessonModal = (day, index = -1) => {
     $('#lessonForm').reset();
     $('#editingDay').value = day;
     $('#editingIndex').value = index;
+
+    // ✨ UPDATED: Logic for smart placeholders
     if (index > -1) {
         $('#lessonModalTitle').textContent = `Редактировать пару (${day})`;
         const lesson = currentSchedule[day][index];
@@ -462,13 +548,19 @@ window.openLessonModal = (day, index = -1) => {
         $('#lessonEndTime').value = lesson.endTime || '';
         if (lesson.time && !lesson.startTime) {
             const times = lesson.time.split('-');
-            $('#lessonStartTime').value = times[0] || '';
-            $('#lessonEndTime').value = times[1] || '';
+            $('#lessonStartTime').value = times[0]?.trim() || '';
+            $('#lessonEndTime').value = times[1]?.trim() || '';
         }
         $('#lessonAud').value = lesson.aud;
         $('#lessonSubject').value = lesson.subject;
+        // Clear placeholders when editing
+        $('#lessonAud').placeholder = 'Аудитория';
+        $('#lessonSubject').placeholder = 'Предмет и преподаватель';
     } else {
         $('#lessonModalTitle').textContent = `Добавить пару (${day})`;
+        // Use last added details as placeholders
+        $('#lessonAud').placeholder = lastAddedLessonDetails.aud || 'Аудитория';
+        $('#lessonSubject').placeholder = lastAddedLessonDetails.subject || 'Предмет и преподаватель';
     }
     $('#lessonModal').classList.add('active');
 }
@@ -485,9 +577,8 @@ function saveLesson(e) {
     };
     const pathIds = { f: $('#facultySelect').value, c: $('#courseSelect').value, g: $('#groupSelect').value };
     let oldLesson = null;
-    if (index > -1) {
-        oldLesson = currentSchedule[day][index];
-    }
+    if (index > -1) oldLesson = currentSchedule[day][index];
+    
     let updatedDaySchedule = Array.isArray(currentSchedule[day]) ? [...currentSchedule[day]] : [];
     if (index > -1) {
         updatedDaySchedule[index] = newLesson;
@@ -498,20 +589,25 @@ function saveLesson(e) {
     db.ref(dayPath).set(updatedDaySchedule)
         .then(() => {
             const type = (index > -1) ? 'lesson_edit' : 'lesson_add';
-            const action = (index > -1) ? `Пара отредактирована для дня "${day}" в группе "${pathIds.g}"` : `Пара добавлена для дня "${day}" в группе "${pathIds.g}"`;
+            const action = (index > -1) ? `Пара отредактирована` : `Пара добавлена`;
             const details = {
                 группа: `${pathIds.f}/${pathIds.c}/${pathIds.g}`,
-                старая_пара: oldLesson ? oldLesson : null,
+                день: day,
+                ...(oldLesson && { старая_пара: oldLesson }),
                 новая_пара: newLesson
             };
             logAction(type, action, details);
+
+            // ✨ UPDATED: Save last added details for next placeholder
+            if (index === -1) {
+                lastAddedLessonDetails.subject = newLesson.subject;
+                lastAddedLessonDetails.aud = newLesson.aud;
+            }
+
             showToast('Расписание сохранено!');
             $('#lessonModal').classList.remove('active');
         })
-        .catch(err => {
-            console.error(err);
-            showToast('Ошибка сохранения', 'error');
-        });
+        .catch(err => showToast('Ошибка сохранения', 'error'));
 }
 
 window.deleteLesson = (day, index) => {
@@ -524,9 +620,10 @@ window.deleteLesson = (day, index) => {
     db.ref(dayPath).set(updatedDaySchedule)
         .then(() => {
             const type = 'lesson_delete';
-            const action = `Пара удалена для дня "${day}" в группе "${pathIds.g}"`;
+            const action = `Пара удалена`;
             const details = {
                 группа: `${pathIds.f}/${pathIds.c}/${pathIds.g}`,
+                день: day,
                 удаленная_пара: deletedLesson
             };
             logAction(type, action, details);
@@ -586,12 +683,22 @@ function handleHierarchyFormSubmit(e) {
     const editId = $("#hierarchyEditId").value;
     if (!name || !id) return showToast("Введите ID и Название", "error");
     const finalId = editId || id;
-    const oldName = editId ? hierarchy[currentHierarchyContext.pathIds.f]?.courses?.[editId]?.name || hierarchy[editId]?.name || '' : null;
+    
+    // Determine old name for logging
+    let oldName = null;
+    if (editId) {
+        const { level, pathIds } = currentHierarchyContext;
+        if (level === 'faculties') oldName = hierarchy[editId]?.name;
+        else if (level === 'courses') oldName = hierarchy[pathIds.f]?.courses?.[editId]?.name;
+        else if (level === 'groups') oldName = hierarchy[pathIds.f]?.courses?.[pathIds.c]?.groups?.[editId]?.name;
+    }
+
     const type = editId ? 'hierarchy_edit' : 'hierarchy_add';
-    const action = editId ? `Элемент иерархии (${currentHierarchyContext.level}) "${name}" (${finalId}) обновлен` : `Элемент иерархии (${currentHierarchyContext.level}) "${name}" (${finalId}) добавлен`;
+    const action = editId ? `Элемент иерархии обновлен` : `Элемент иерархии добавлен`;
     const details = {
         уровень: currentHierarchyContext.level,
-        старое_название: oldName,
+        id: finalId,
+        ...(oldName && { старое_название: oldName }),
         новое_название: name
     };
     const hierarchyPath = `${currentHierarchyContext.parentPath}/${finalId}`;
@@ -600,10 +707,10 @@ function handleHierarchyFormSubmit(e) {
             logAction(type, action, details);
             showToast(`Элемент успешно ${editId ? 'обновлен' : 'добавлен'}!`);
             resetHierarchyForm();
-            openHierarchyModal(currentHierarchyContext.level);
         })
         .catch(e => showToast(`Ошибка: ${e.message}`, "error"));
 }
+
 
 window.startEditHierarchyItem = (id, name) => {
     $("#hierarchyEditId").value = id;
@@ -625,19 +732,27 @@ function resetHierarchyForm() {
 }
 
 window.deleteHierarchyItem = (itemId) => {
-    if (!confirm('Вы уверены? Это действие удалит элемент и ВСЕ вложенные в него данные!')) return;
+    if (!confirm('Вы уверены? Это действие удалит элемент и ВСЕ вложенные в него данные (включая расписания)!')) return;
     const { level, parentPath, pathIds } = currentHierarchyContext;
-    const deletedName = hierarchy[pathIds.f]?.courses?.[itemId]?.name || hierarchy[itemId]?.name || itemId;
+    
+    let deletedName = itemId;
+    try {
+        if (level === 'faculties') deletedName = hierarchy[itemId].name;
+        else if (level === 'courses') deletedName = hierarchy[pathIds.f].courses[itemId].name;
+        else if (level === 'groups') deletedName = hierarchy[pathIds.f].courses[pathIds.c].groups[itemId].name;
+    } catch(e) { /* Name not found, use ID */ }
+    
     const updates = {};
     const hierarchyPath = `${parentPath}/${itemId}`;
     updates[hierarchyPath] = null;
     if (level === "faculties") updates[`/schedules/${itemId}`] = null;
     else if (level === "courses") updates[`/schedules/${pathIds.f}/${itemId}`] = null;
     else if (level === "groups") updates[`/schedules/${pathIds.f}/${pathIds.c}/${itemId}`] = null;
+    
     db.ref().update(updates)
         .then(() => {
             const type = 'hierarchy_delete';
-            const action = `Элемент иерархии (${level}) "${deletedName}" (${itemId}) удален вместе с связанными данными`;
+            const action = `Элемент иерархии удален`;
             const details = {
                 уровень: level,
                 удаленный_элемент: { id: itemId, name: deletedName }
@@ -645,7 +760,6 @@ window.deleteHierarchyItem = (itemId) => {
             logAction(type, action, details);
             showToast("Элемент и связанные расписания удалены.");
             resetHierarchyForm();
-            openHierarchyModal(level);
         })
         .catch(e => showToast(`Ошибка: ${e.message}`, "error"));
 }
@@ -673,6 +787,5 @@ const showToast = (text, type = "success") => {
 };
 </script>
 
- 
 </body>
 </html>
