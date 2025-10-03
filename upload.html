@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -38,6 +38,7 @@
         .ql-editor { min-height: 150px; }
         .ql-snow .ql-stroke { stroke: var(--text-color); opacity: 0.8; }
         .ql-snow .ql-picker-label { color: var(--text-color) !important; opacity: 0.8; }
+        .ql-snow .ql-fill { fill: var(--text-color); opacity: 0.8; } /* Для иконок с заливкой */
 
         /* Popover для создания таблицы */
         #table-creator-popover { position: absolute; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); padding: 8px; z-index: 1001; display: none; }
@@ -94,10 +95,14 @@
                         <input type="hidden" id="assignment-id">
                         <input type="text" id="subject" class="form-input w-full p-3 rounded-lg" placeholder="Название предмета" required>
                         <input type="text" id="teacherName" class="form-input w-full p-3 rounded-lg" placeholder="ФИО преподавателя" required>
+                        
                         <div>
                             <label class="font-semibold block mb-2 opacity-80">Содержание СРС:</label>
                             <div id="editor-container"></div>
                         </div>
+
+                        <input type="url" id="fileLink" class="form-input w-full p-3 rounded-lg" placeholder="Ссылка на файл (Google Диск и др.)">
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div><label for="startDate" class="text-sm font-medium opacity-80">Дата начала</label><input type="date" id="startDate" class="form-input w-full p-3 rounded-lg" required></div>
                             <div><label for="endDate" class="text-sm font-medium opacity-80">Дата окончания</label><input type="date" id="endDate" class="form-input w-full p-3 rounded-lg" required></div>
@@ -205,13 +210,21 @@
             $('#addHierarchyItemBtn').addEventListener('click', addHierarchyItem);
         }
 
-        // --- QUILL EDITOR & TABLE CREATOR ---
+        // --- QUILL EDITOR & CUSTOM HANDLERS ---
+        function imageHandler() {
+            const url = prompt('Введите URL изображения:');
+            if (url) {
+                const range = quill.getSelection(true);
+                quill.insertEmbed(range.index, 'image', url, Quill.sources.USER);
+            }
+        }
+
         function initEditor() {
             const toolbarOptions = [
                 [{ 'header': [1, 2, 3, false] }],
                 ['bold', 'italic', 'underline'],
                 [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                ['link', 'blockquote'],
+                ['link', 'blockquote', 'image_url'], // Добавлена кнопка image_url
                 ['table'],
                 ['clean']
             ];
@@ -220,13 +233,19 @@
                 modules: {
                     toolbar: {
                         container: toolbarOptions,
-                        handlers: { 'table': () => showTableCreator() }
+                        handlers: { 
+                            'table': () => showTableCreator(),
+                            'image_url': imageHandler // Добавлен обработчик
+                        }
                     }
                 },
                 placeholder: 'Введите описание задания...'
             });
+            // Кастомные иконки для панели
             const tableButton = document.querySelector('.ql-table');
             tableButton.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m0 2v3h14V6H5m0 5v3h4v-3H5m6 0v3h8v-3h-8m-6 5v3h4v-3H5m6 0v3h8v-3h-8z"></path></svg>`;
+            const imageButton = document.querySelector('.ql-image_url');
+            imageButton.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"></path></svg>`;
             initTableCreator();
         }
 
@@ -269,7 +288,7 @@
                 }
             });
             window.addEventListener("click", e => { 
-                if (popover.style.display === "block" && !e.target.closest('.ql-table')) {
+                if (popover.style.display === "block" && !e.target.closest('.ql-table') && !e.target.closest('#table-creator-popover')) {
                     popover.style.display = "none";
                 }
             });
@@ -291,25 +310,134 @@
             quill.clipboard.dangerouslyPasteHTML(range.index, tableHTML);
         }
 
-        // --- HIERARCHY & DATA LOGIC ---
-        function initHierarchy() { /* ... (Same as previous version) ... */ }
-        function populateFaculties() { /* ... (Same as previous version) ... */ }
-        function populateCourses() { /* ... (Same as previous version) ... */ }
-        function populateGroups() { /* ... (Same as previous version) ... */ }
-        function handleGroupSelection() { /* ... (Same as previous version) ... */ }
-        function renderAssignments(data) { /* ... (Same as previous version) ... */ }
-        window.openHierarchyModal = (level) => { /* ... (Same as previous version) ... */ };
-        function addHierarchyItem() { /* ... (Same as previous version) ... */ }
-        window.deleteHierarchyItem = (itemId) => { /* ... (Same as previous version) ... */ };
-
-        // --- CRUD & FORM ---
-        function saveAssignment(e){e.preventDefault();if(!assignmentsRef)return void showToast("Сначала выберите группу!","error");const t=$("#assignment-id").value,o=quill.root.innerHTML;if(quill.getLength()<=1)return void showToast('Поле "Содержание СРС" не может быть пустым.',"error");const n={subject:$("#subject").value,teacherName:$("#teacherName").value,description:o,startDate:$("#startDate").value,endDate:$("#endDate").value,timestamp:firebase.database.ServerValue.TIMESTAMP},s=t?assignmentsRef.child(t).update(n):assignmentsRef.push(n);s.then(()=>{(showToast(`Задание успешно ${t?"обновлено":"добавлено"}!`),resetForm())}).catch(e=>showToast(`Ошибка: ${e.message}`,"error"))}
-        window.editAssignment=t=>{const e=localAssignments[t];e&&($("#assignment-id").value=t,$("#subject").value=e.subject,$("#teacherName").value=e.teacherName,quill.root.innerHTML=e.description,$("#startDate").value=e.startDate,$("#endDate").value=e.endDate,$("#form-title").textContent="Редактировать задание",$("#submit-button").textContent="Обновить",$("#cancel-button").style.display="inline-flex",window.scrollTo({top:0,behavior:"smooth"}))};
-        const resetForm=()=>{quill.setText(""),$("#assignment-id").value="",$("#assignment-form").reset(),$("#form-title").textContent="Добавить задание",$("#submit-button").textContent="Добавить",$("#cancel-button").style.display="none"};
-        window.deleteAssignment = (id) => {if(confirm("Вы уверены?")) { assignmentsRef && assignmentsRef.child(id).remove().then(() => showToast('Задание удалено!', 'success')).catch(err => showToast(`Ошибка: ${err.message}`, 'error'));}};
-        const showToast = (text, type = "success") => { Toastify({ text, duration: 3000, gravity: "bottom", position: "right", style: { background: type === "success" ? "#10b981" : "#ef4444" } }).showToast(); };
-        function initHierarchy(){db.ref("hierarchy").on("value",e=>{hierarchy=e.exists()?e.val():{},populateFaculties()}),$("#facultySelect").addEventListener("change",populateCourses),$("#courseSelect").addEventListener("change",populateGroups),$("#groupSelect").addEventListener("change",handleGroupSelection)}function populateFaculties(){const e=$("#facultySelect").value,t=$("#facultySelect");for(const o in t.innerHTML="<option value=''>Факультет</option>",hierarchy)t.add(new Option(hierarchy[o].name,o));t.value=e;populateCourses()}function populateCourses(){const e=$("#courseSelect").value,t=$("#facultySelect").value,o=$("#courseSelect");o.innerHTML="<option value=''>Курс</option>";if(!t)return void populateGroups();const n=hierarchy[t];n&&n.courses&&Object.keys(n.courses).forEach(e=>{o.add(new Option(n.courses[e].name,e))}),o.value=e;populateGroups()}function populateGroups(){const e=$("#groupSelect").value,t=$("#facultySelect").value,o=$("#courseSelect").value,n=$("#groupSelect");if(n.innerHTML="<option value=''>Группа</option>",!o)return void handleGroupSelection();const i=hierarchy[t]?.courses?.[o];i&&i.groups&&Object.keys(i.groups).forEach(e=>{n.add(new Option(i.groups[e].name,e))}),n.value=e;handleGroupSelection()}function handleGroupSelection(){assignmentsRef&&assignmentsRef.off();const e=$("#assignments-list"),t={f:$("#facultySelect").value,c:$("#courseSelect").value,g:$("#groupSelect").value};if(!t.f||!t.c||!t.g)return $("#submit-button").disabled=!0,void(e.innerHTML='<div class="glass-card p-8 rounded-2xl text-center opacity-80"><p>Пожалуйста, выберите факультет, курс и группу.</p></div>');$("#submit-button").disabled=!1;const o=`assignments/${t.f}/${t.c}/${t.g}`;assignmentsRef=db.ref(o),assignmentsRef.on("value",e=>renderAssignments(e.val()))}function renderAssignments(e){const t=$("#assignments-list");if(t.innerHTML="",!e)return void(t.innerHTML='<div class="glass-card p-8 rounded-2xl text-center opacity-80">✨ Для этой группы заданий пока нет.</div>');localAssignments=e;const o=Object.keys(e).sort((t,o)=>e[o].timestamp-e[t].timestamp);o.forEach(o=>{const n=e[o],s=document.createElement("div");s.className="glass-card p-5 rounded-2xl";const a=Math.ceil((new Date(n.endDate)-new Date)/864e5),l=a<0?"text-red-500":a<=3?"text-yellow-500":"text-green-500",i=a<0?"Срок истек":`Осталось дней: ${a}`;s.innerHTML=`<div class="flex justify-between items-start"><div><p class="font-bold text-lg">${n.subject}</p><p class="text-sm opacity-80 mt-1">${n.teacherName}</p></div><div class="flex-shrink-0 flex items-center gap-2"><button onclick="editAssignment('${o}')" class="icon-btn" title="Изменить"><svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg></button><button onclick="deleteAssignment('${o}')" class="icon-btn" title="Удалить"><svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div></div><div class="text-xs mt-3 pt-3 border-t border-[var(--border-color)] opacity-70"><span>Сроки: ${n.startDate} – ${n.endDate}</span><span class="font-semibold ml-4 ${l}">${i}</span></div>`,t.appendChild(s)})}window.openHierarchyModal=e=>{const t=$("#hierarchyModal"),o=$("#hierarchyModalList"),n=$("#hierarchyItemName"),s=$("#hierarchyItemId");let a,l,i={},r="hierarchy";const d={f:$("#facultySelect").value,c:$("#courseSelect").value};try{"faculties"===e?(a="Управление факультетами",i=hierarchy,s.placeholder="ID (напр. it)"):"courses"===e?(d.f?(a=`Курсы: ${hierarchy[d.f].name}`,i=hierarchy[d.f].courses||{},r+=`/${d.f}/courses`,s.placeholder="ID (напр. course_3)"):l="Сначала выберите факультет"):"groups"===e&&(d.c?(a=`Группы: ${hierarchy[d.f].courses[d.c].name}`,i=hierarchy[d.f].courses[d.c].groups||{},r+=`/${d.f}/courses/${d.c}/groups`,s.placeholder="ID (напр. g301a)"):l="Сначала выберите курс"),l&&showToast(l,"error")}catch(e){return void showToast(e.message,"error")}if(l)return;currentHierarchyContext={level:e,parentPath:r,pathIds:d},$("#hierarchyModalTitle").textContent=a,o.innerHTML="",n.value="",s.value="",0===Object.keys(i).length?o.innerHTML='<li class="p-2 text-center opacity-70">Список пуст.</li>':Object.keys(i).forEach(e=>{o.innerHTML+=`<li class="flex justify-between items-center p-2 border-b border-[var(--border-color)]"><span>${i[e].name} <em class="text-xs opacity-50">(${e})</em></span><button class="text-red-500 font-bold text-xl" onclick="deleteHierarchyItem('${e}')">&times;</button></li>`}),t.classList.add("active")}
+        // --- HIERARCHY & DATA LOGIC (без изменений) ---
+        function initHierarchy(){db.ref("hierarchy").on("value",e=>{hierarchy=e.exists()?e.val():{},populateFaculties()}),$("#facultySelect").addEventListener("change",populateCourses),$("#courseSelect").addEventListener("change",populateGroups),$("#groupSelect").addEventListener("change",handleGroupSelection)}function populateFaculties(){const e=$("#facultySelect").value,t=$("#facultySelect");for(const o in t.innerHTML="<option value=''>Факультет</option>",hierarchy)t.add(new Option(hierarchy[o].name,o));t.value=e;populateCourses()}function populateCourses(){const e=$("#courseSelect").value,t=$("#facultySelect").value,o=$("#courseSelect");o.innerHTML="<option value=''>Курс</option>";if(!t)return void populateGroups();const n=hierarchy[t];n&&n.courses&&Object.keys(n.courses).forEach(e=>{o.add(new Option(n.courses[e].name,e))}),o.value=e;populateGroups()}function populateGroups(){const e=$("#groupSelect").value,t=$("#facultySelect").value,o=$("#courseSelect").value,n=$("#groupSelect");if(n.innerHTML="<option value=''>Группа</option>",!o)return void handleGroupSelection();const i=hierarchy[t]?.courses?.[o];i&&i.groups&&Object.keys(i.groups).forEach(e=>{n.add(new Option(i.groups[e].name,e))}),n.value=e;handleGroupSelection()}
+        function handleGroupSelection(){assignmentsRef&&assignmentsRef.off();const e=$("#assignments-list"),t={f:$("#facultySelect").value,c:$("#courseSelect").value,g:$("#groupSelect").value};if(!t.f||!t.c||!t.g)return $("#submit-button").disabled=!0,void(e.innerHTML='<div class="glass-card p-8 rounded-2xl text-center opacity-80"><p>Пожалуйста, выберите факультет, курс и группу.</p></div>');$("#submit-button").disabled=!1;const o=`assignments/${t.f}/${t.c}/${t.g}`;assignmentsRef=db.ref(o),assignmentsRef.on("value",e=>renderAssignments(e.val()))}
+        window.openHierarchyModal=e=>{const t=$("#hierarchyModal"),o=$("#hierarchyModalList"),n=$("#hierarchyItemName"),s=$("#hierarchyItemId");let a,l,i={},r="hierarchy";const d={f:$("#facultySelect").value,c:$("#courseSelect").value};try{"faculties"===e?(a="Управление факультетами",i=hierarchy,s.placeholder="ID (напр. it)"):"courses"===e?(d.f?(a=`Курсы: ${hierarchy[d.f].name}`,i=hierarchy[d.f].courses||{},r+=`/${d.f}/courses`,s.placeholder="ID (напр. course_3)"):l="Сначала выберите факультет"):"groups"===e&&(d.c?(a=`Группы: ${hierarchy[d.f].courses[d.c].name}`,i=hierarchy[d.f].courses[d.c].groups||{},r+=`/${d.f}/courses/${d.c}/groups`,s.placeholder="ID (напр. g301a)"):l="Сначала выберите курс"),l&&showToast(l,"error")}catch(e){return void showToast(e.message,"error")}if(l)return;currentHierarchyContext={level:e,parentPath:r,pathIds:d},$("#hierarchyModalTitle").textContent=a,o.innerHTML="",n.value="",s.value="",0===Object.keys(i).length?o.innerHTML='<li class="p-2 text-center opacity-70">Список пуст.</li>':Object.keys(i).forEach(e=>{o.innerHTML+=`<li class="flex justify-between items-center p-2 border-b border-[var(--border-color)]"><span>${i[e].name} <em class="text-xs opacity-50">(${e})</em></span><button class="text-red-500 font-bold text-xl" onclick="deleteHierarchyItem('${e}')">&times;</button></li>`}),t.classList.add("active")}
         function addHierarchyItem(){const e=$("#hierarchyItemName").value.trim(),t=$("#hierarchyItemId").value.trim();e&&t?db.ref(currentHierarchyContext.parentPath).child(t).set({name:e}).then(()=>{showToast("Элемент добавлен!"),$("#hierarchyItemName").value="",$("#hierarchyItemId").value=""}).catch(e=>showToast(`Ошибка: ${e.message}`,"error")):showToast("Введите ID и Название","error")}window.deleteHierarchyItem=e=>{if(!confirm("Вы уверены? Это действие удалит элемент и ВСЕ вложенные в него данные (курсы, группы, задания)!"))return;const{level:t,parentPath:o,pathIds:n}=currentHierarchyContext,s={};s[`${o}/${e}`]=null,"faculties"===t?s[`/assignments/${e}`]=null:"courses"===t?s[`/assignments/${n.f}/${e}`]=null:"groups"===t&&(s[`/assignments/${n.f}/${n.c}/${e}`]=null),db.ref().update(s).then(()=>showToast("Элемент и связанные данные удалены.")).catch(e=>showToast(`Ошибка: ${e.message}`,"error"))};
+
+
+        // --- CRUD & FORM (ОБНОВЛЕНЫ) ---
+        function saveAssignment(e) {
+            e.preventDefault();
+            if (!assignmentsRef) return showToast("Сначала выберите группу!", "error");
+            const assignmentId = $("#assignment-id").value;
+            const descriptionHTML = quill.root.innerHTML;
+
+            if (quill.getLength() <= 1) { // Проверка, что редактор не пустой
+                return showToast('Поле "Содержание СРС" не может быть пустым.', "error");
+            }
+
+            const assignmentData = {
+                subject: $("#subject").value,
+                teacherName: $("#teacherName").value,
+                description: descriptionHTML,
+                fileLink: $("#fileLink").value, // Добавлено поле
+                startDate: $("#startDate").value,
+                endDate: $("#endDate").value,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            const promise = assignmentId 
+                ? assignmentsRef.child(assignmentId).update(assignmentData)
+                : assignmentsRef.push(assignmentData);
+
+            promise
+                .then(() => {
+                    showToast(`Задание успешно ${assignmentId ? "обновлено" : "добавлено"}!`);
+                    resetForm();
+                })
+                .catch(err => showToast(`Ошибка: ${err.message}`, "error"));
+        }
+
+        window.editAssignment = (id) => {
+            const assignment = localAssignments[id];
+            if (assignment) {
+                $("#assignment-id").value = id;
+                $("#subject").value = assignment.subject;
+                $("#teacherName").value = assignment.teacherName;
+                quill.root.innerHTML = assignment.description;
+                $("#fileLink").value = assignment.fileLink || ''; // Добавлено поле
+                $("#startDate").value = assignment.startDate;
+                $("#endDate").value = assignment.endDate;
+                $("#form-title").textContent = "Редактировать задание";
+                $("#submit-button").textContent = "Обновить";
+                $("#cancel-button").style.display = "inline-flex";
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+        };
+
+        const resetForm = () => {
+            quill.setText('');
+            $("#assignment-id").value = "";
+            $("#assignment-form").reset(); // Это сбросит и fileLink
+            $("#form-title").textContent = "Добавить задание";
+            $("#submit-button").textContent = "Добавить";
+            $("#cancel-button").style.display = "none";
+        };
+
+        window.deleteAssignment = (id) => {
+            if (confirm("Вы уверены?")) {
+                assignmentsRef && assignmentsRef.child(id).remove()
+                    .then(() => showToast('Задание удалено!', 'success'))
+                    .catch(err => showToast(`Ошибка: ${err.message}`, 'error'));
+            }
+        };
+
+        // --- RENDERING (ОБНОВЛЕНО) ---
+        function renderAssignments(data) {
+            const list = $("#assignments-list");
+            list.innerHTML = "";
+            if (!data) {
+                list.innerHTML = `<div class="glass-card p-8 rounded-2xl text-center opacity-80">✨ Для этой группы заданий пока нет.</div>`;
+                return;
+            }
+            localAssignments = data;
+            const sortedIds = Object.keys(data).sort((a, b) => data[b].timestamp - data[a].timestamp);
+            
+            sortedIds.forEach(id => {
+                const assignment = data[id];
+                const card = document.createElement("div");
+                card.className = "glass-card p-5 rounded-2xl";
+
+                const daysLeft = Math.ceil((new Date(assignment.endDate) - new Date()) / (1000 * 60 * 60 * 24));
+                const daysLeftColor = daysLeft < 0 ? "text-red-500" : daysLeft <= 3 ? "text-yellow-500" : "text-green-500";
+                const daysLeftText = daysLeft < 0 ? "Срок истек" : `Осталось дней: ${daysLeft}`;
+
+                // Добавляем блок с файлом, если ссылка существует
+                const fileBlock = assignment.fileLink 
+                    ? `<div class="mt-4">
+                           <a href="${assignment.fileLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                               Прикрепленный файл
+                           </a>
+                       </div>` 
+                    : '';
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-lg">${assignment.subject}</p>
+                            <p class="text-sm opacity-80 mt-1">${assignment.teacherName}</p>
+                        </div>
+                        <div class="flex-shrink-0 flex items-center gap-2">
+                            <button onclick="editAssignment('${id}')" class="icon-btn" title="Изменить"><svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg></button>
+                            <button onclick="deleteAssignment('${id}')" class="icon-btn" title="Удалить"><svg class="w-5 h-5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                        </div>
+                    </div>
+                    ${fileBlock}
+                    <div class="text-xs mt-3 pt-3 border-t border-[var(--border-color)] opacity-70">
+                        <span>Сроки: ${assignment.startDate} – ${assignment.endDate}</span>
+                        <span class="font-semibold ml-4 ${daysLeftColor}">${daysLeftText}</span>
+                    </div>`;
+                list.appendChild(card);
+            });
+        }
+
+        const showToast = (text, type = "success") => {
+            Toastify({ text, duration: 3000, gravity: "bottom", position: "right", style: { background: type === "success" ? "#10b981" : "#ef4444" } }).showToast();
+        };
+
     </script>
 </body>
 </html>
