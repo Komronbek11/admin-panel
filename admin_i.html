@@ -6,58 +6,325 @@
     <title>Админ-панель: Расписание</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* === MODERN STYLES & ICONS === */
+        
         :root {
-            --primary: #4f46e5; --primary-dark: #3730a3; --success: #10b981; --error: #ef4444;
-            --text: #1e293b; --text-light: #64748b; --bg: #f8fafc; --bg-dark: #f1f5f9;
-            --card-bg: #ffffff; --border-color: #e2e8f0; --radius: 12px; --shadow: 0 4px 12px rgba(0,0,0,0.05);
-            --transition: all 0.3s ease;
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #e0e7ff;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            
+            --text: #1e293b;
+            --text-light: #64748b;
+            --text-inverted: #ffffff;
+            --border-color: #e2e8f0;
+
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --input-bg: #ffffff;
+
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
         @media (prefers-color-scheme: dark) {
             :root {
-                --primary: #6366f1; --primary-dark: #4f46e5; --text: #e2e8f0; --text-light: #94a3b8;
-                --bg: #0f172a; --bg-dark: #1e293b; --card-bg: #1e293b; --border-color: #334155;
+                --primary: #6366f1;
+                --primary-dark: #4f46e5;
+                --primary-light: #312e81;
+
+                --text: #e2e8f0;
+                --text-light: #94a3b8;
+                --border-color: #334155;
+                
+                --bg: #0f172a;
+                --card-bg: #1e293b;
+                --input-bg: #1e293b;
             }
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 16px; transition: var(--transition); }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .btn { padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; background: var(--primary); color: white; transition: var(--transition); }
-        .btn:hover:not(:disabled) { background: var(--primary-dark); }
-        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding: 24px;
+            transition: var(--transition);
+        }
+
+        .container { max-width: 1280px; margin: 0 auto; }
+        
+        /* --- Buttons --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: var(--primary);
+            color: var(--text-inverted);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .btn:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn:disabled { background: #9ca3af; color: #e5e7eb; cursor: not-allowed; }
+        .btn:focus-visible { outline: 2px solid var(--primary-dark); outline-offset: 2px; }
+        
         .btn-danger { background: var(--error); }
-        .btn-danger:hover { background: #c82333; }
-        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text); }
+        .btn-danger:hover:not(:disabled) { background: #dc2626; }
+        
+        .btn-icon {
+            padding: 8px;
+            background: transparent;
+            color: var(--text-light);
+        }
+        .btn-icon:hover:not(:disabled) { background: var(--bg); color: var(--primary); transform: none;}
+        .btn-icon.danger:hover:not(:disabled) { color: var(--error); }
+
+        .btn svg { width: 20px; height: 20px; }
+        .btn-icon svg { width: 22px; height: 22px; }
+
+        /* --- Forms --- */
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text);
+            transition: var(--transition);
+        }
+        .form-control:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px var(--primary-light); }
         .form-group { margin-bottom: 16px; }
-        .form-group label { font-size: 14px; margin-bottom: 8px; display: block; }
-        #authContainer { max-width: 400px; margin: 100px auto; padding: 30px; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); }
-        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
-        .selectors { display: flex; gap: 16px; margin-bottom: 24px; background: var(--card-bg); padding: 16px; border-radius: var(--radius); flex-wrap: wrap; }
-        .selector-group { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 180px; }
-        .manage-btn { padding: 4px 8px; font-size: 12px; background: var(--bg-dark); color: var(--text-light); border: 1px solid var(--border-color); cursor: pointer; border-radius: 6px; }
-        .table-container { background: var(--card-bg); border-radius: var(--radius); overflow-x: auto; }
+        .form-group label { font-size: 14px; margin-bottom: 8px; display: block; font-weight: 500; }
+        
+        /* --- Layout & Cards --- */
+        #authContainer {
+            max-width: 420px;
+            margin: 80px auto;
+            padding: 40px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+        #authContainer h1 { text-align: center; margin-bottom: 24px; font-weight: 700; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .header h1 { display: flex; align-items: center; gap: 12px; font-size: 28px; }
+        .header .user-info { display: flex; align-items: center; gap: 16px; }
+
+        .selectors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+        .selector-group { display: flex; align-items: center; gap: 8px; }
+        .selector-group label { font-weight: 500; white-space: nowrap; }
+        
+        .manage-btn {
+            padding: 6px;
+            background: var(--bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            transition: var(--transition);
+        }
+        .manage-btn:hover { background: var(--primary-light); color: var(--primary); }
+        .manage-btn svg { width: 18px; height: 18px; }
+        
+        .table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 16px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
-        .actions { display: flex; gap: 8px; }
-        .actions .btn { padding: 8px; font-size: 18px; line-height: 1; }
-        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px); }
-        .modal.active { display: flex; }
-        .modal-content { background: var(--card-bg); border-radius: var(--radius); width: 90%; max-width: 500px; padding: 24px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--text-light); }
-        #hierarchyModalList { list-style: none; padding: 0; max-height: 250px; overflow-y: auto; }
-        #hierarchyModalList li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); }
+        th, td { padding: 16px 20px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        thead { background: var(--bg); }
+        th { font-weight: 600; font-size: 14px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background-color: var(--bg); }
+        .actions { display: flex; gap: 4px; }
+        .placeholder-text { text-align: center; padding: 48px; color: var(--text-light); }
+        
+        /* --- Modal --- */
+        .modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; backdrop-filter: blur(5px);
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            width: 90%; max-width: 550px;
+            padding: 28px; max-height: 90vh; overflow-y: auto;
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content { transform: scale(1) translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-header h3 { font-size: 22px; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: var(--text-light); line-height: 1; padding: 4px; }
+        .close-btn svg { width: 28px; height: 28px; }
+
+        #hierarchyModalList { list-style: none; padding: 0; max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+        #hierarchyModalList li { display: flex; justify-content: space-between; align-items: center; padding: 12px; }
+        #hierarchyModalList li:not(:last-child) { border-bottom: 1px solid var(--border-color); }
         .delete-item-btn { color: var(--error); background: none; border: none; font-size: 20px; cursor: pointer; }
+
+        /* --- Toast Notifications --- */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
-        .toast { padding: 14px; border-radius: 8px; color: white; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .toast {
+            padding: 14px 20px; border-radius: 8px; color: white; margin-bottom: 10px;
+            box-shadow: var(--shadow-lg); opacity: 0; transform: translateX(100%);
+            animation: slideIn 0.5s forwards;
+        }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
         .toast.success { background: var(--success); } .toast.error { background: var(--error); }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .selectors { grid-template-columns: 1fr; }
+            th, td { padding: 12px 16px; }
+            .header h1 { font-size: 24px; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="authContainer"><h1>Вход для администратора</h1><form id="loginForm"><div class="form-group"><label for="email">Email</label><input type="email" id="email" class="form-control" required></div><div class="form-group"><label for="password">Пароль</label><input type="password" id="password" class="form-control" required></div><button type="submit" class="btn" style="width: 100%;">Войти</button></form></div>
-    <div id="dashboardContainer" class="container" style="display: none;"><div class="header"><h1>Управление расписанием</h1><div><span id="adminEmail" style="margin-right: 16px;"></span><button id="logoutBtn" class="btn">Выйти</button></div></div><div class="selectors"><div class="selector-group"><label>Факультет</label><select id="facultySelect" class="form-control"></select><button class="manage-btn" onclick="openHierarchyModal('faculties')">[ упр. ]</button></div><div class="selector-group"><label>Курс</label><select id="courseSelect" class="form-control"></select><button class="manage-btn" onclick="openHierarchyModal('courses')">[ упр. ]</button></div><div class="selector-group"><label>Группа</label><select id="groupSelect" class="form-control"></select><button class="manage-btn" onclick="openHierarchyModal('groups')">[ упр. ]</button></div></div><button class="btn" id="addExamBtn" disabled>Добавить экзамен</button><div class="table-container" style="margin-top: 16px;"><table><thead><tr><th>Предмет</th><th>Дата</th><th>Время</th><th>Преподаватель</th><th>Действия</th></tr></thead><tbody id="examsTableBody"></tbody></table></div></div>
-    <div class="modal" id="examModal"><div class="modal-content"><div class="modal-header"><h3 id="modalTitle"></h3><button class="close-btn" id="closeExamModalBtn">&times;</button></div><form id="examForm"><input type="hidden" id="examId"><div class="form-group"><label for="subject">Предмет</label><input type="text" id="subject" class="form-control" required></div><div class="form-group"><label for="teacher">Преподаватель</label><input type="text" id="teacher" class="form-control" required></div><div style="display: flex; gap: 16px;"><div class="form-group" style="flex:1"><label for="date">Дата</label><input type="date" id="date" class="form-control" required></div><div class="form-group" style="flex:1"><label for="room">Аудитория</label><input type="text" id="room" class="form-control" required></div></div><div style="display: flex; gap: 16px;"><div class="form-group" style="flex:1"><label for="start">Время начала</label><input type="time" id="start" class="form-control" required></div><div class="form-group" style="flex:1"><label for="end">Время окончания</label><input type="time" id="end" class="form-control" required></div></div><div class="form-group"><label for="type">Тип</label><select id="type" class="form-control" required></select></div><div class="form-group"><label for="description">Описание</label><textarea id="description" class="form-control" rows="3"></textarea></div><button type="submit" class="btn" style="width: 100%;">Сохранить</button></form></div></div>
-    <div class="modal" id="hierarchyModal"><div class="modal-content"><div class="modal-header"><h3 id="hierarchyModalTitle"></h3><button class="close-btn" id="closeHierarchyModalBtn">&times;</button></div><ul id="hierarchyModalList"></ul><div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;"><h4 style="margin-bottom: 10px;">Добавить новый элемент</h4><div style="display: flex; gap: 10px;"><input type="text" id="hierarchyItemName" class="form-control" placeholder="Название (напр. 5 курс)"><input type="text" id="hierarchyItemId" class="form-control" placeholder="ID (напр. course_5)"><button id="addHierarchyItemBtn" class="btn">Добавить</button></div></div></div></div>
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <symbol id="icon-calendar" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></symbol>
+            <symbol id="icon-logout" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V5h10a1 1 0 100-2H3zm12.293 4.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L16.586 13H9a1 1 0 110-2h7.586l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd" /></symbol>
+            <symbol id="icon-settings" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a1 1 0 00-2 0v2.268a2 2 0 00.94 1.693l1.06 1.06a2 2 0 002.83 0l1.06-1.06A2 2 0 008.828 6.268V4a1 1 0 10-2 0v1.172a.2.2 0 01-.06.141l-1.06 1.061a.2.2 0 01-.283 0L4.357 5.313a.2.2 0 01-.06-.141V4zM3.407 9.593a2 2 0 00-1.694.94l-1.06 1.06a2 2 0 000 2.83l1.06 1.06a2 2 0 001.694.94V18a1 1 0 102 0v-1.172a.2.2 0 01.06-.141l1.06-1.061a.2.2 0 01.283 0l1.06 1.06a.2.2 0 01.06.141V18a1 1 0 102 0v-1.732a2 2 0 00-.94-1.693l-1.06-1.06a2 2 0 00-2.83 0l-1.06 1.06A2 2 0 004.172 13.732V16a1 1 0 10-2 0v-.593a.2.2 0 01.06-.141l1.06-1.061a.2.2 0 01.283 0l1.06 1.06a.2.2 0 01.06.141V16a1 1 0 102 0v.088a2 2 0 00.94 1.693l1.06 1.06a2 2 0 002.83 0l1.06-1.06a2 2 0 00.94-1.693V14a1 1 0 10-2 0v.593a.2.2 0 01-.06.141l-1.06 1.061a.2.2 0 01-.283 0l-1.06-1.06a.2.2 0 01-.06-.141V14a1 1 0 10-2 0v-.268a2 2 0 00.94 1.693l1.06 1.06a2 2 0 002.83 0l1.06-1.06a2 2 0 00.94-1.693V12a1 1 0 10-2 0v-.268a2 2 0 00.94 1.693l1.06 1.06a2 2 0 002.83 0l1.06-1.06a2 2 0 00.94-1.693V10a1 1 0 10-2 0v.268a2 2 0 00-.94-1.693l-1.06-1.06a2 2 0 00-2.83 0l-1.06 1.06A2 2 0 0011.172 9.732V8a1 1 0 10-2 0v1.732a2 2 0 00-.94-1.693l-1.06-1.06a2 2 0 00-2.83 0l-1.06 1.06A2 2 0 003.407 9.593zM16 4a1 1 0 10-2 0v1.172a.2.2 0 01-.06.141l-1.06 1.061a.2.2 0 01-.283 0l-1.06-1.06a.2.2 0 01-.06-.141V4a1 1 0 10-2 0v2.268a2 2 0 00.94 1.693l1.06 1.06a2 2 0 002.83 0l1.06-1.06A2 2 0 0015.828 6.268V4z" /></symbol>
+            <symbol id="icon-plus" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></symbol>
+            <symbol id="icon-edit" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></symbol>
+            <symbol id="icon-trash" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></symbol>
+            <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
+        </defs>
+    </svg>
+
+    <div id="authContainer">
+        <h1>Вход для администратора</h1>
+        <form id="loginForm">
+            <div class="form-group"><label for="email">Email</label><input type="email" id="email" class="form-control" required></div>
+            <div class="form-group"><label for="password">Пароль</label><input type="password" id="password" class="form-control" required></div>
+            <button type="submit" class="btn" style="width: 100%;">Войти</button>
+        </form>
+    </div>
+
+    <div id="dashboardContainer" class="container" style="display: none;">
+        <div class="header">
+            <h1><svg width="30" hieght="30"><use href="#icon-calendar"></use></svg>Управление расписание экзаменов</h1>
+            <div class="user-info">
+                <span id="adminEmail"></span>
+                <button id="logoutBtn" class="btn">
+                    <svg><use href="#icon-logout"></use></svg>
+                    <span>Выйти</span>
+                </button>
+            </div>
+        </div>
+        <div class="selectors">
+            <div class="selector-group">
+                <label for="facultySelect">Факультет</label>
+                <select id="facultySelect" class="form-control"></select>
+                <button class="manage-btn" onclick="openHierarchyModal('faculties')" title="Управление факультетами">⚙️<use href="#icon-settings"></use></svg></button>
+            </div>
+            <div class="selector-group">
+                <label for="courseSelect">Курс</label>
+                <select id="courseSelect" class="form-control"></select>
+                <button class="manage-btn" onclick="openHierarchyModal('courses')" title="Управление курсами">⚙️<use href="#icon-settings"></use></svg></button>
+            </div>
+            <div class="selector-group">
+                <label for="groupSelect">Группа</label>
+                <select id="groupSelect" class="form-control"></select>
+                <button class="manage-btn" onclick="openHierarchyModal('groups')" title="Управление группами">⚙️<use href="#icon-settings"></use></svg></button>
+            </div>
+        </div>
+        <button class="btn" id="addExamBtn" disabled>
+            <svg><use href="#icon-plus"></use></svg>
+            Добавить экзамен
+        </button>
+        <div class="table-container" style="margin-top: 20px;">
+            <table>
+                <thead><tr><th>Предмет</th><th>Дата</th><th>Время</th><th>Преподаватель</th><th>Действия</th></tr></thead>
+                <tbody id="examsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="examModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle"></h3>
+                <button class="close-btn" id="closeExamModalBtn"><svg><use href="#icon-close"></use></svg></button>
+            </div>
+            <form id="examForm">
+                <input type="hidden" id="examId">
+                <div class="form-group"><label for="subject">Предмет</label><input type="text" id="subject" class="form-control" required></div>
+                <div class="form-group"><label for="teacher">Преподаватель</label><input type="text" id="teacher" class="form-control" required></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group"><label for="date">Дата</label><input type="date" id="date" class="form-control" required></div>
+                    <div class="form-group"><label for="room">Аудитория</label><input type="text" id="room" class="form-control" required></div>
+                </div>
+                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group"><label for="start">Время начала</label><input type="time" id="start" class="form-control" required></div>
+                    <div class="form-group"><label for="end">Время окончания</label><input type="time" id="end" class="form-control" required></div>
+                </div>
+                <div class="form-group"><label for="type">Тип</label><select id="type" class="form-control" required></select></div>
+                <div class="form-group"><label for="description">Описание</label><textarea id="description" class="form-control" rows="3"></textarea></div>
+                <button type="submit" class="btn" style="width: 100%;">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="hierarchyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="hierarchyModalTitle"></h3>
+                <button class="close-btn" id="closeHierarchyModalBtn"><svg><use href="#icon-close"></use></svg></button>
+            </div>
+            <ul id="hierarchyModalList"></ul>
+            <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <h4 style="margin-bottom: 10px;">Добавить новый элемент</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px;">
+                    <input type="text" id="hierarchyItemName" class="form-control" placeholder="Название (напр. 5 курс)">
+                    <input type="text" id="hierarchyItemId" class="form-control" placeholder="ID (напр. course_5)">
+                    <button id="addHierarchyItemBtn" class="btn"><svg><use href="#icon-plus"></use></svg></button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="toast-container"></div>
 
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
@@ -65,15 +332,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
-    apiKey: "AIzaSyDww__vYGLKmPz1z8nSnh_Tmry96sb-3OE",
-    authDomain: "srstudent-76914.firebaseapp.com",
-    databaseURL: "https://srstudent-76914-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "srstudent-76914",
-    storageBucket: "srstudent-76914.firebasestorage.app",
-    messagingSenderId: "1066284112446",
-    appId: "1:1066284112446:web:e0c23b04c080ada2e74f6f",
-    measurementId: "G-J9CKGMR4QS"
-  };
+            apiKey: "AIzaSyDww__vYGLKmPz1z8nSnh_Tmry96sb-3OE",
+            authDomain: "srstudent-76914.firebaseapp.com",
+            databaseURL: "https://srstudent-76914-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "srstudent-76914",
+            storageBucket: "srstudent-76914.firebasestorage.app",
+            messagingSenderId: "1066284112446",
+            appId: "1:1066284112446:web:e0c23b04c080ada2e74f6f",
+            measurementId: "G-J9CKGMR4QS"
+        };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         const auth = firebase.auth();
@@ -86,12 +353,22 @@
 
         const $ = (selector) => document.querySelector(selector);
         
+        // --- ICONS (SVG content for JS rendering) ---
+        const ICONS = {
+            edit: `<svg><use href="#icon-edit"></use></svg>`,
+            trash: `<svg><use href="#icon-trash"></use></svg>`,
+            close: `<svg><use href="#icon-close"></use></svg>`
+        };
+
         auth.onAuthStateChanged(user => {
             if (user) {
                 $('#authContainer').style.display = 'none';
                 $('#dashboardContainer').style.display = 'block';
                 $('#adminEmail').textContent = user.email;
-                initDashboard();
+                if (!document.body.dataset.initialized) {
+                    initDashboard();
+                    document.body.dataset.initialized = "true";
+                }
             } else {
                 $('#authContainer').style.display = 'block';
                 $('#dashboardContainer').style.display = 'none';
@@ -113,6 +390,15 @@
             $('#examForm').addEventListener('submit', saveExam);
             $('#closeHierarchyModalBtn').addEventListener('click', () => $('#hierarchyModal').classList.remove('active'));
             $('#addHierarchyItemBtn').addEventListener('click', addHierarchyItem);
+            
+            // Close modal on outside click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
         }
 
         function populateFaculties() {
@@ -140,8 +426,8 @@
             if (examsRef) examsRef.off();
             $('#addExamBtn').disabled = true;
             const pathIds = { f: $('#facultySelect').value, c: $('#courseSelect').value, g: $('#groupSelect').value };
-            if (!pathIds.f || !pathIds.c || !pathIds.g || $('#facultySelect').selectedIndex === 0) {
-                $('#examsTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px;">Выберите факультет, курс и группу.</td></tr>`;
+            if (!pathIds.f || !pathIds.c || !pathIds.g || $('#facultySelect').selectedIndex === 0 || $('#courseSelect').selectedIndex === 0 || $('#groupSelect').selectedIndex === 0) {
+                $('#examsTableBody').innerHTML = `<tr><td colspan="5" class="placeholder-text">Выберите факультет, курс и группу.</td></tr>`;
                 return;
             }
             $('#addExamBtn').disabled = false;
@@ -153,14 +439,24 @@
         function renderExams(exams) {
             const tbody = $('#examsTableBody');
             tbody.innerHTML = '';
-            if (!exams) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px;">Для этой группы экзаменов пока нет.</td></tr>`;
+            if (!exams || Object.keys(exams).length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="placeholder-text">Для этой группы экзаменов пока нет.</td></tr>`;
                 return;
             }
-            for (const key in exams) {
-                const exam = { id: key, ...exams[key] };
+            const sortedExams = Object.entries(exams).sort(([, a], [, b]) => new Date(a.date) - new Date(b.date));
+
+            for (const [key, examData] of sortedExams) {
+                const exam = { id: key, ...examData };
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${exam.subject||''}</td><td>${exam.date||''}</td><td>${exam.start||''} - ${exam.end||''}</td><td>${exam.teacher||''}</td><td class="actions"><button class="btn" onclick="showExamModal('${key}')">✏️</button><button class="btn btn-danger" onclick="deleteExam('${key}')">🗑️</button></td>`;
+                tr.innerHTML = `
+                    <td>${exam.subject || ''}</td>
+                    <td>${exam.date || ''}</td>
+                    <td>${exam.start || ''} - ${exam.end || ''}</td>
+                    <td>${exam.teacher || ''}</td>
+                    <td class="actions">
+                        <button class="btn btn-icon" title="Редактировать" onclick="showExamModal('${key}')">${ICONS.edit}</button>
+                        <button class="btn btn-icon danger" title="Удалить" onclick="deleteExam('${key}')">${ICONS.trash}</button>
+                    </td>`;
                 tbody.appendChild(tr);
             }
         }
@@ -196,7 +492,9 @@
         }
 
         window.deleteExam = (id) => {
-            if (confirm('Вы уверены?')) examsRef.child(id).remove().then(() => showToast('Удалено.', 'success')).catch(e => showToast(`Ошибка: ${e.message}`, 'error'));
+            if (confirm('Вы уверены, что хотите удалить этот экзамен?')) {
+                examsRef.child(id).remove().then(() => showToast('Экзамен удален.', 'success')).catch(e => showToast(`Ошибка: ${e.message}`, 'error'));
+            }
         }
 
         window.openHierarchyModal = (level) => {
@@ -209,24 +507,29 @@
             try {
                 if (level === 'faculties') { title = 'Управление факультетами'; items = hierarchy; } 
                 else if (level === 'courses') {
-                    if (!pathIds.f || $('#facultySelect').selectedIndex === 0) throw new Error('Выберите факультет');
+                    if (!pathIds.f || $('#facultySelect').selectedIndex === 0) throw new Error('Сначала выберите факультет');
                     title = `Курсы: ${hierarchy[pathIds.f].name}`; items = hierarchy[pathIds.f].courses || {}; parentPath += `/${pathIds.f}/courses`;
                 } else if (level === 'groups') {
-                    if (!pathIds.c || $('#courseSelect').selectedIndex === 0) throw new Error('Выберите курс');
+                    if (!pathIds.c || $('#courseSelect').selectedIndex === 0) throw new Error('Сначала выберите курс');
                     title = `Группы: ${hierarchy[pathIds.f].courses[pathIds.c].name}`; items = hierarchy[pathIds.f].courses[pathIds.c].groups || {}; parentPath += `/${pathIds.f}/courses/${pathIds.c}/groups`;
                 }
             } catch (e) { showToast(e.message, 'error'); return; }
             
             currentHierarchyContext = { level, parentPath, pathIds };
             $('#hierarchyModalTitle').textContent = title;
-            if (Object.keys(items).length === 0) list.innerHTML = '<li>Список пуст.</li>';
-            else for (const key in items) list.innerHTML += `<li><span>${items[key].name}</span><button class="delete-item-btn" onclick="deleteHierarchyItem('${key}')">&times;</button></li>`;
+            if (Object.keys(items).length === 0) {
+                list.innerHTML = '<li><span class="placeholder-text">Список пуст.</span></li>';
+            } else {
+                 for (const key in items) {
+                    list.innerHTML += `<li><span>${items[key].name} (ID: ${key})</span><button class="btn-icon danger delete-item-btn" onclick="deleteHierarchyItem('${key}')">${ICONS.trash}</button></li>`;
+                }
+            }
             modal.classList.add('active');
         }
 
         function addHierarchyItem() {
             const name = $('#hierarchyItemName').value.trim();
-            const id = $('#hierarchyItemId').value.trim();
+            const id = $('#hierarchyItemId').value.trim().replace(/[^a-zA-Z0-9_]/g, ''); // Sanitize ID
             if (!name || !id) { showToast('Введите ID и Название', 'error'); return; }
 
             database.ref(currentHierarchyContext.parentPath).child(id).set({ name: name })
@@ -236,7 +539,7 @@
         
         window.deleteHierarchyItem = (itemId) => {
             const { level, parentPath, pathIds } = currentHierarchyContext;
-            if (!confirm(`Вы уверены? Это действие удалит элемент и ВСЕ вложенные в него расписания!`)) return;
+            if (!confirm(`ВНИМАНИЕ!\n\nВы уверены, что хотите удалить этот элемент? Это действие также безвозвратно удалит ВСЕ вложенные в него элементы и ВСЕ связанные с ними расписания.`)) return;
 
             const updates = {};
             updates[`${parentPath}/${itemId}`] = null; // Удаляем из иерархии
@@ -257,8 +560,17 @@
             toast.className = `toast ${type}`;
             toast.textContent = message;
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.5s forwards';
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
         }
+        // Add animation for toast hiding
+        const styleSheet = document.createElement("style");
+        styleSheet.type = "text/css";
+        styleSheet.innerText = `@keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }`;
+        document.head.appendChild(styleSheet);
+
     </script>
 </body>
 </html>
