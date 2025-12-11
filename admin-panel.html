@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -7,22 +7,25 @@
     <meta name="theme-color" content="#007AFF" />
     <link rel="apple-touch-icon" href="protection.png">
     <link rel="manifest" href="manifest.json">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #020412 0%, #0d041c 100%);
             --card-bg: rgba(23, 27, 58, 0.4);
             --text-color: #eaf0ff;
             --text-secondary-color: #8a99c2;
-            --primary-color: #00bfff; /* Deep Sky Blue for a neon feel */
+            --primary-color: #00bfff;
             --border-color: rgba(0, 191, 255, 0.25);
             --shadow: 0 0 20px rgba(0, 191, 255, 0.1);
             --shadow-hover: 0 0 45px rgba(0, 191, 255, 0.3);
             --border-radius-md: 18px;
             --font-family: 'Share Tech Mono', monospace;
+            --error-color: #ff3c7e;
         }
 
         body {
@@ -41,22 +44,77 @@
         }
 
         body::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.3),
-                rgba(0, 0, 0, 0.3) 1px,
-                transparent 1px,
-                transparent 3px
-            );
-            pointer-events: none;
-            z-index: 999;
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3) 1px, transparent 1px, transparent 3px);
+            pointer-events: none; z-index: -1;
         }
+
+        /* --- STYLES FOR PROFILE HEADER --- */
+        .profile-header {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .user-info {
+            text-align: right;
+            line-height: 1.2;
+        }
+
+        .user-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary-color);
+            display: block;
+        }
+
+        .user-name {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+        }
+
+        .logout-btn {
+            background: rgba(255, 60, 126, 0.15);
+            border: 1px solid rgba(255, 60, 126, 0.4);
+            color: var(--error-color);
+            padding: 8px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: var(--font-family);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 60, 126, 0.3);
+            box-shadow: 0 0 15px rgba(255, 60, 126, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        /* Mobile adjustment for header */
+        @media (max-width: 600px) {
+            .profile-header {
+                position: relative;
+                top: 0;
+                right: 0;
+                justify-content: center;
+                margin-bottom: 20px;
+                width: 100%;
+            }
+            body {
+                flex-direction: column;
+                justify-content: flex-start;
+                padding-top: 40px;
+            }
+        }
+        /* -------------------------------- */
 
         .container {
             width: 100%;
@@ -65,105 +123,71 @@
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7),
-                         0 0 15px var(--primary-color);
+            font-size: 2.5rem; font-weight: 700; margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7), 0 0 15px var(--primary-color);
         }
 
         .welcome-text {
-            font-size: 1.1rem;
-            color: var(--text-secondary-color);
-            margin-bottom: 40px;
-            letter-spacing: 1px;
+            font-size: 1.1rem; color: var(--text-secondary-color); margin-bottom: 40px; letter-spacing: 1px;
         }
 
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 25px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px;
         }
 
         .card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: var(--border-radius-md);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-            text-decoration: none;
-            color: var(--text-color);
-            aspect-ratio: 1 / 1;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            animation: fadeIn 0.5s ease-out forwards;
-            opacity: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; background: var(--card-bg); backdrop-filter: blur(10px);
+            border-radius: var(--border-radius-md); border: 1px solid var(--border-color);
+            box-shadow: var(--shadow); text-decoration: none; color: var(--text-color);
+            aspect-ratio: 1 / 1; transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            animation: fadeIn 0.5s ease-out forwards; opacity: 0;
         }
 
-        /* Staggered animation for each card */
         .card:nth-child(1) { animation-delay: 0.1s; }
         .card:nth-child(2) { animation-delay: 0.2s; }
         .card:nth-child(3) { animation-delay: 0.3s; }
         .card:nth-child(4) { animation-delay: 0.4s; }
         .card:nth-child(5) { animation-delay: 0.5s; }
         .card:nth-child(6) { animation-delay: 0.6s; }
-        .card:nth-child(7) { animation-delay: 0.7s; } /* Added for new card */
+        .card:nth-child(7) { animation-delay: 0.7s; }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .card:hover {
             transform: translateY(-8px) scale(1.03);
-            box-shadow: var(--shadow-hover);
-            border-color: rgba(0, 191, 255, 0.7);
+            box-shadow: var(--shadow-hover); border-color: rgba(0, 191, 255, 0.7);
         }
 
         .card-icon {
-            width: 48px;
-            height: 48px;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            filter: drop-shadow(0 0 8px var(--primary-color));
-            transition: filter 0.3s ease;
+            width: 48px; height: 48px; color: var(--primary-color); margin-bottom: 15px;
+            filter: drop-shadow(0 0 8px var(--primary-color)); transition: filter 0.3s ease;
         }
 
-        .card:hover .card-icon {
-            filter: drop-shadow(0 0 15px var(--primary-color));
-        }
-
-        .card span {
-            font-size: 1rem;
-            font-weight: 600;
-            text-shadow: 0 0 5px var(--primary-color);
-        }
+        .card:hover .card-icon { filter: drop-shadow(0 0 15px var(--primary-color)); }
+        .card span { font-size: 1rem; font-weight: 600; text-shadow: 0 0 5px var(--primary-color); }
 
         @media (max-width: 600px) {
-            h1 {
-                font-size: 2rem;
-            }
-            .dashboard-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
-            .card span {
-                font-size: 0.9rem;
-            }
+            h1 { font-size: 2rem; }
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+            .card span { font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
+
+    <div class="profile-header" id="profile-header" style="display: none;">
+        <div class="user-info">
+            <span class="user-label">Вы вошли как:</span>
+            <span class="user-name" id="user-display-name">Загрузка...</span>
+        </div>
+        <button onclick="logout()" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
+    </div>
 
     <div class="container">
         <h1>Панель Администратора</h1>
@@ -232,9 +256,70 @@
                 </div>
                 <span>Настройки</span>
             </a>
-
         </div>
     </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        // Firebase Configuration (Тот же, что и при входе)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAOfxPW5m2UqtulWzuh3egOjJ-ti-rDf8",
+            authDomain: "register-221e5.firebaseapp.com",
+            projectId: "register-221e5",
+            storageBucket: "register-221e5.appspot.com",
+            messagingSenderId: "588640206529",
+            appId: "1:588640206529:web:b2abf5413387e251935e40",
+            measurementId: "G-XN40PT5PV2"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const profileHeader = document.getElementById('profile-header');
+        const userDisplayName = document.getElementById('user-display-name');
+
+        // Проверка авторизации
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Пользователь вошел, показываем шапку
+                profileHeader.style.display = 'flex';
+                
+                // Получаем данные из Firestore, чтобы взять красивое имя (с эмодзи и т.д.)
+                db.collection('users').doc(user.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        // Берем имя из базы (displayName) или имя профиля Google
+                        userDisplayName.textContent = data.displayName || user.displayName || user.email;
+                    } else {
+                        userDisplayName.textContent = user.displayName || user.email.split('@')[0];
+                    }
+                })
+                .catch((error) => {
+                    console.log("Error getting user details:", error);
+                    userDisplayName.textContent = user.email.split('@')[0];
+                });
+
+            } else {
+                // Если не вошел - отправляем на страницу входа
+                // Предполагаю, что страница входа называется index.html
+                window.location.href = 'index.html'; 
+            }
+        });
+
+        // Функция выхода
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error("Ошибка при выходе:", error);
+            });
+        }
+    </script>
 
 </body>
 </html>
