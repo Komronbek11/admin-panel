@@ -3,139 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель | Преподаватели</title>
+    <title>Cyber Admin | Преподаватели v2.1</title>
     
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
   <style>
     :root {
-        /* --- НОВОЕ: Цветовая палитра в стиле "Киберпанк" --- */
         --bg-color: #0a0c1a;
-        --card-bg: rgba(15, 23, 42, 0.4); /* Прозрачный темный фон */
-        --border-color: rgba(0, 191, 255, 0.25);
+        --card-bg: rgba(15, 23, 42, 0.6);
+        --border-color: rgba(0, 191, 255, 0.3);
         --text-color: #eaf0ff;
-        --text-secondary: #8a99c2;
-        --primary-color: #00bfff; /* Основной неоновый цвет */
-
-        /* --- НОВОЕ: Неоновые цвета для фона "Аврора" --- */
-        --aurora-1: #00bfff; /* Cyan */
-        --aurora-2: #ff00ff; /* Magenta */
-        --aurora-3: #39ff14; /* Neon Green */
-    }
-
-    html {
-        scroll-behavior: smooth;
+        --primary-color: #00bfff;
     }
 
     body {
-        /* --- НОВОЕ: Замена шрифта --- */
         font-family: 'Share Tech Mono', monospace;
         background-color: var(--bg-color);
         color: var(--text-color);
         overflow-x: hidden;
     }
 
-    /* --- Aurora Background (адаптирован под темную тему) --- */
-    .aurora-container {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: -1;
-    }
-    @keyframes rotate { 
-        0% { transform: rotate(0deg); } 
-        100% { transform: rotate(360deg); } 
-    }
-    .aurora-shape {
-        position: absolute; border-radius: 50%; filter: blur(140px); opacity: 0.4; animation: rotate 50s infinite linear;
-    }
-    .aurora-1 { width: 600px; height: 600px; background: var(--aurora-1); top: -200px; left: -200px; animation-duration: 40s; }
-    .aurora-2 { width: 500px; height: 500px; background: var(--aurora-2); bottom: -150px; right: -150px; animation-duration: 55s; }
-    .aurora-3 { width: 400px; height: 400px; background: var(--aurora-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-duration: 45s; }
+    /* --- Aurora Background --- */
+    .aurora-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: -1; }
+    .aurora-shape { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; animation: rotate 50s infinite linear; }
+    .aurora-1 { width: 600px; height: 600px; background: #00bfff; top: -200px; left: -200px; }
+    .aurora-2 { width: 500px; height: 500px; background: #ff00ff; bottom: -150px; right: -150px; }
+    .aurora-3 { width: 400px; height: 400px; background: #39ff14; top: 50%; left: 50%; transform: translate(-50%, -50%); }
 
-    /* --- Glassmorphism Card (адаптирован) --- */
+    /* --- UI Elements --- */
     .glass-card {
         background-color: var(--card-bg);
         border: 1px solid var(--border-color);
         backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        transition: all 0.3s ease;
-        box-shadow: 0 0 25px rgba(0,0,0,0.2), 0 0 15px var(--primary-color-t, transparent) inset;
+        box-shadow: 0 0 25px rgba(0,0,0,0.3);
     }
-    .glass-card:hover {
-        --primary-color-t: rgba(0, 191, 255, 0.1);
-        border-color: rgba(0, 191, 255, 0.5);
-    }
-    
-    /* --- НОВЫЕ СТИЛИ: Заголовки с неоновым свечением --- */
-    h1, h2 {
-        text-shadow: 0 0 6px var(--primary-color);
-    }
-    .text-gray-800 { color: var(--text-color) !important; }
-    .text-gray-600 { color: var(--text-secondary) !important; }
 
-    /* --- Form Elements (переделаны под темную тему) --- */
     .form-input {
-        width: 100%; padding: 12px 16px; margin-bottom: 16px; border-radius: 10px;
+        width: 100%; padding: 10px 14px; border-radius: 8px;
         border: 1px solid var(--border-color);
-        background-color: rgba(0, 0, 0, 0.2);
-        color: var(--text-color); /* Цвет вводимого текста */
-        transition: all 0.3s ease;
-        font-size: 1rem;
-    }
-    .form-input::placeholder { color: var(--text-secondary); }
-    .form-input:focus {
-        outline: none;
-        border-color: var(--primary-color);
         background-color: rgba(0, 0, 0, 0.3);
-        box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.3);
-    }
-    
-    /* --- Buttons (переделаны под темную тему) --- */
-    .btn {
-        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-        padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600;
-        transition: all 0.3s ease;
-        border: 1px solid var(--border-color);
-        background: transparent;
         color: var(--text-color);
-        box-shadow: 0 0 10px rgba(0, 191, 255, 0.2);
+        transition: 0.3s;
+        font-family: 'Share Tech Mono', monospace;
     }
-    .btn:hover {
-        transform: translateY(-2px);
-        background: rgba(0, 191, 255, 0.1);
-        color: white;
-        box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
-    }
-    /* Переопределение цветов для кнопок */
-    .btn-primary { background-color: rgba(0, 191, 255, 0.2); border-color: var(--primary-color); }
-    .btn-primary:hover { background-color: rgba(0, 191, 255, 0.4); }
-    .btn-secondary { background-color: rgba(138, 153, 194, 0.2); border-color: var(--text-secondary); }
-    .btn-secondary:hover { background-color: rgba(138, 153, 194, 0.4); }
+    .form-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 10px rgba(0, 191, 255, 0.2); }
     
-    .btn-edit { padding: 8px 12px; font-size: 0.875rem; background-color: rgba(245, 158, 11, 0.2); border-color: #f59e0b; }
-    .btn-edit:hover { background-color: rgba(245, 158, 11, 0.4); }
-    .btn-delete { padding: 8px 12px; font-size: 0.875rem; background-color: rgba(239, 68, 68, 0.2); border-color: #ef4444; }
-    .btn-delete:hover { background-color: rgba(239, 68, 68, 0.4); }
+    /* Звездочка для обязательных полей */
+    .required-mark { color: #ff0055; margin-left: 4px; }
+    .optional-mark { color: #6b7280; font-size: 0.7em; margin-left: 4px; }
 
-    /* --- Teacher List (адаптирован) --- */
-    .teacher-card-entry {
-        display: flex; align-items: center; padding: 16px; border-radius: 12px; margin-bottom: 12px;
-        transition: all 0.3s ease;
+    .btn {
+        padding: 10px 20px; border-radius: 8px; cursor: pointer;
+        border: 1px solid var(--border-color); background: transparent;
+        color: var(--text-color); transition: 0.3s; display: inline-flex; align-items: center; justify-content: center;
     }
-    .teacher-card-entry:hover {
-        transform: scale(1.02);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    .btn:hover { background: rgba(0, 191, 255, 0.1); }
+    .btn-primary { background: rgba(0, 191, 255, 0.15); border-color: var(--primary-color); }
+    .btn-danger { border-color: #ff0055; color: #ff0055; }
+    .btn-danger:hover { background: rgba(255, 0, 85, 0.2); }
+
+    /* --- Dynamic Fields & Modal --- */
+    .dynamic-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
+        display: flex; justify-content: center; align-items: center;
+        z-index: 50; opacity: 0; visibility: hidden; transition: 0.3s;
     }
-    .teacher-card-entry img {
-        width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-right: 16px;
-        border: 2px solid var(--primary-color);
-    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-content { width: 90%; max-width: 500px; transform: scale(0.9); transition: 0.3s; }
+    .modal-overlay.active .modal-content { transform: scale(1); }
+    .dept-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
 </style>
-
 </head>
 <body class="min-h-screen">
 
@@ -145,66 +87,92 @@
         <div class="aurora-shape aurora-3"></div>
     </div>
 
+    <div id="dept-modal" class="modal-overlay">
+        <div class="glass-card modal-content p-6 rounded-xl">
+            <h3 class="text-xl font-bold mb-4">Настройка кафедр</h3>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="new-dept-name" class="form-input" placeholder="Название кафедры">
+                <button onclick="addDepartment()" class="btn btn-primary">+</button>
+            </div>
+            <div id="dept-list-container" class="max-h-60 overflow-y-auto"></div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="toggleDeptModal(false)" class="btn">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-10">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Панель администратора</h1>
-            <p class="text-lg text-gray-600 mt-2">Управление составом преподавателей</p>
+            <h1 class="text-4xl font-bold">SYSTEM ADMIN</h1>
+            <p class="text-gray-400 mt-2 tracking-widest">DATABASE CONTROL</p>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             <div class="lg:col-span-1">
                 <div class="glass-card p-6 rounded-2xl sticky top-8">
-                    <h2 class="text-2xl font-semibold mb-5 flex items-center gap-3" id="form-title">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span>Добавить преподавателя</span>
+                    <h2 class="text-2xl font-semibold mb-5 flex items-center gap-3">
+                        <span class="text-blue-400">►</span> <span>Преподаватель</span>
                     </h2>
+                    
                     <form id="teacher-form">
                         <input type="hidden" id="teacher-id">
-                        <input type="text" id="name" class="form-input" placeholder="Ному насаб" required>
-                        <input type="text" id="position" class="form-input" placeholder="Мавқеъ" required>
-                        <select id="department" class="form-input" required>
-                            <option value="">Интихоби кафедра</option>
-                            <option value="Программирование">Программирование</option>
-                            <option value="Физика">Физика</option>
-                            <option value="Информатика">Информатика</option>
-                            <option value="Математика">Математика</option>
-                            <option value="Химия">Химия</option>
-                            <option value="Биология">Биология</option>
-                            <option value="История">История</option>
-                            <option value="География">География</option>
-                            <option value="Экономика">Экономика</option>
-                            <option value="Литература">Литература</option>
-                            <option value="Иностранный язык">Иностранный язык</option>
-                            <option value="Философия">Философия</option>
-                            <option value="Социология">Социология</option>
-                            <option value="Психология">Психология</option>
-                            <option value="Искусство">Искусство</option>
-                            <option value="Музыка">Музыка</option>
-                            <option value="Физическая культура">Физическая культура</option>
-                            <option value="Экология">Экология</option>
-                            <option value="Технология">Технология</option>
-                            <option value="Другое">Дигар</option>
-                        </select>
-                        <input type="url" id="image-url" class="form-input" placeholder="URL-адрес изображения" required>
-                        <input type="tel" id="phone" class="form-input" placeholder="Рақами мобилӣ" required>
                         
-                        <div class="flex items-center gap-4 mt-2">
-                            <button type="submit" id="submit-button" class="btn btn-primary w-full">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                <span>Добавить</span>
-                            </button>
-                            <button type="button" id="cancel-button" class="btn btn-secondary w-full" style="display:none;">Отмена</button>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs text-gray-400 ml-1">ФИО <span class="required-mark">*</span></label>
+                                <input type="text" id="name" class="form-input" placeholder="Ному насаб" required>
+                            </div>
+
+                            <div>
+                                <label class="text-xs text-gray-400 ml-1">Фото (URL) <span class="required-mark">*</span></label>
+                                <input type="url" id="image-url" class="form-input" placeholder="https://..." required>
+                            </div>
+
+                            <div>
+                                <label class="text-xs text-gray-400 ml-1">Должность <span class="optional-mark">(необязательно)</span></label>
+                                <input type="text" id="position" class="form-input" placeholder="Мавқеъ">
+                            </div>
+
+                            <div>
+                                <label class="text-xs text-gray-400 ml-1">Кафедра <span class="optional-mark">(необязательно)</span></label>
+                                <div class="flex gap-2">
+                                    <select id="department" class="form-input">
+                                        <option value="">Без кафедры</option>
+                                    </select>
+                                    <button type="button" onclick="toggleDeptModal(true)" class="btn px-3">⚙️</button>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="text-xs text-gray-400 ml-1">Телефон <span class="optional-mark">(необязательно)</span></label>
+                                <input type="tel" id="phone" class="form-input" placeholder="+992...">
+                            </div>
+
+                            <div class="border-t border-gray-700 pt-3 mt-4">
+                                <label class="text-sm font-bold text-blue-300 mb-2 block">Доп. информация</label>
+                                <div id="custom-fields-container"></div>
+                                <button type="button" onclick="addCustomFieldDOM()" class="text-xs text-green-400 hover:text-green-300 mt-2 flex items-center gap-1">
+                                    [+] Добавить поле
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 mt-6">
+                            <button type="submit" id="submit-button" class="btn btn-primary w-full">Сохранить</button>
+                            <button type="button" id="cancel-button" class="btn btn-danger w-full hidden">Отмена</button>
                         </div>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-2">
-                <div class="glass-card p-6 rounded-2xl">
-                    <h2 class="text-2xl font-semibold mb-5">Текущий состав</h2>
-                    <div id="teacher-list" class="space-y-3">
-                        </div>
+                <div class="glass-card p-6 rounded-2xl min-h-[500px]">
+                    <h2 class="text-2xl font-semibold mb-5 flex justify-between items-center">
+                        <span>База данных</span>
+                        <span id="count-badge" class="text-sm bg-blue-900 text-blue-200 px-3 py-1 rounded-full">0</span>
+                    </h2>
+                    <div id="teacher-list" class="space-y-4"></div>
                 </div>
             </div>
         </div>
@@ -212,11 +180,10 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script>
-        // Your Firebase configuration object
+        // CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyB3_Qs3pr6OK2JvyL7ViO09aFXjjt9qygQ",
             authDomain: "tut-app-6aaae.firebaseapp.com",
@@ -227,158 +194,182 @@
             measurementId: "G-DZ0XNZR35S"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const teachersCollection = db.collection("teachers");
+        const deptsCollection = db.collection("departments");
 
-        // --- DOM Elements ---
-        const teacherForm = document.getElementById("teacher-form");
-        const teacherListDiv = document.getElementById("teacher-list");
-        const teacherIdField = document.getElementById("teacher-id");
-        const formTitle = document.getElementById("form-title").querySelector('span');
-        const submitButton = document.getElementById("submit-button");
-        const submitButtonText = submitButton.querySelector('span');
-        const cancelButton = document.getElementById("cancel-button");
-
-        // --- НОВОЕ: Функция для показа уведомлений ---
-       const showToast = (text, type = 'success') => {
-    // Новые стили для уведомлений
-    const styles = {
-        success: {
-            background: "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
-            border: "1px solid #39ff14",
-            textShadow: "0 0 5px #39ff14"
-        },
-        error: {
-            background: "linear-gradient(135deg, #23074d, #42275a)",
-            border: "1px solid #ff00ff",
-            textShadow: "0 0 5px #ff00ff"
-        },
-    };
-
-    Toastify({
-        text: text,
-        duration: 3000,
-        close: true,
-        gravity: "top", 
-        position: "right", 
-        stopOnFocus: true,
-        style: {
-            fontFamily: "'Share Tech Mono', monospace",
-            borderRadius: "10px",
-            ...(styles[type]) // Применяем нужный стиль
-        },
-    }).showToast();
-}
-
-
-        // --- Functions ---
-        const resetForm = () => {
-            teacherForm.reset();
-            teacherIdField.value = '';
-            formTitle.textContent = 'Добавить преподавателя';
-            submitButtonText.textContent = 'Добавить';
-            cancelButton.style.display = 'none';
-            submitButton.classList.remove('w-1/2');
-            submitButton.classList.add('w-full');
+        // DOM ELEMENTS
+        const els = {
+            form: document.getElementById("teacher-form"),
+            list: document.getElementById("teacher-list"),
+            idField: document.getElementById("teacher-id"),
+            submitBtn: document.getElementById("submit-button"),
+            cancelBtn: document.getElementById("cancel-button"),
+            deptSelect: document.getElementById("department"),
+            customFieldsContainer: document.getElementById("custom-fields-container"),
+            deptModal: document.getElementById("dept-modal"),
+            deptListContainer: document.getElementById("dept-list-container"),
+            newDeptInput: document.getElementById("new-dept-name"),
+            countBadge: document.getElementById("count-badge")
         };
 
-        const renderTeachers = () => {
-            teachersCollection.orderBy("name").onSnapshot(snapshot => {
-                if (snapshot.empty) {
-                    teacherListDiv.innerHTML = `<p class="text-center text-gray-500 py-8">Список преподавателей пуст. Добавьте первого!</p>`;
-                    return;
-                }
-                teacherListDiv.innerHTML = "";
+        const showToast = (text, type = 'success') => {
+            const colors = { success: "linear-gradient(to right, #00b09b, #96c93d)", error: "linear-gradient(to right, #ff5f6d, #ffc371)" };
+            Toastify({ text, duration: 3000, style: { background: colors[type] } }).showToast();
+        };
+
+        // --- Logic: Departments ---
+        const loadDepartments = () => {
+            deptsCollection.orderBy("name").onSnapshot(snapshot => {
+                els.deptListContainer.innerHTML = "";
+                // Оставляем пустую опцию по умолчанию
+                els.deptSelect.innerHTML = '<option value="">Без кафедры / Не выбрано</option>';
+                
                 snapshot.forEach(doc => {
-                    const teacher = doc.data();
-                    const teacherCard = document.createElement("div");
-                    teacherCard.className = 'teacher-card-entry glass-card';
-                    
-                    teacherCard.innerHTML = `
-                        <img src="${teacher.image}" alt="${teacher.name}" onerror="this.onerror=null;this.src='https://via.placeholder.com/100';">
-                        <div class="flex-grow">
-                            <h3 class="font-semibold text-lg">${teacher.name}</h3>
-                            <p class="text-sm text-gray-600">${teacher.position} - ${teacher.department}</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="editTeacher('${doc.id}')" class="btn btn-edit">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L16.732 3.732z"></path></svg>
-                            </button>
-                            <button onclick="deleteTeacher('${doc.id}')" class="btn btn-delete">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            </button>
-                        </div>
-                    `;
-                    teacherListDiv.appendChild(teacherCard);
+                    const data = doc.data();
+                    const option = document.createElement("option");
+                    option.value = data.name;
+                    option.textContent = data.name;
+                    option.style.background = "#1a202c"; 
+                    els.deptSelect.appendChild(option);
+
+                    const div = document.createElement("div");
+                    div.className = "dept-item";
+                    div.innerHTML = `<span>${data.name}</span> <button onclick="deleteDepartment('${doc.id}')" class="text-red-400">[x]</button>`;
+                    els.deptListContainer.appendChild(div);
                 });
             });
         };
 
-        teacherForm.addEventListener("submit", async (e) => {
+        const toggleDeptModal = (show) => els.deptModal.classList.toggle('active', show);
+        window.addDepartment = async () => {
+            if(!els.newDeptInput.value.trim()) return;
+            await deptsCollection.add({ name: els.newDeptInput.value.trim() });
+            els.newDeptInput.value = "";
+        };
+        window.deleteDepartment = async (id) => confirm("Удалить?") && await deptsCollection.doc(id).delete();
+
+        // --- Logic: Dynamic Fields ---
+        window.addCustomFieldDOM = (key = "", value = "") => {
+            const div = document.createElement("div");
+            div.className = "dynamic-row";
+            div.innerHTML = `
+                <input type="text" placeholder="Название" class="form-input text-xs w-1/3 field-key" value="${key}">
+                <input type="text" placeholder="Значение" class="form-input text-xs w-2/3 field-value" value="${value}">
+                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 font-bold px-2">×</button>
+            `;
+            els.customFieldsContainer.appendChild(div);
+        };
+
+        const getCustomFieldsData = () => {
+            const rows = els.customFieldsContainer.querySelectorAll('.dynamic-row');
+            const data = [];
+            rows.forEach(row => {
+                const key = row.querySelector('.field-key').value.trim();
+                const val = row.querySelector('.field-value').value.trim();
+                if(key && val) data.push({ label: key, value: val });
+            });
+            return data;
+        };
+
+        // --- Logic: Main Form ---
+        const resetForm = () => {
+            els.form.reset();
+            els.idField.value = '';
+            els.submitBtn.innerHTML = 'Сохранить';
+            els.cancelBtn.classList.add('hidden');
+            els.customFieldsContainer.innerHTML = '';
+        };
+
+        els.form.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const id = teacherIdField.value;
-            const teacherData = {
+            
+            // Собираем данные. Если поле пустое, оно отправится как пустая строка ""
+            const formData = {
                 name: document.getElementById("name").value,
                 position: document.getElementById("position").value,
-                department: document.getElementById("department").value,
+                department: els.deptSelect.value,
                 image: document.getElementById("image-url").value,
-                phone: document.getElementById("phone").value
+                phone: document.getElementById("phone").value,
+                customFields: getCustomFieldsData(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
-                if (id) {
-                    await teachersCollection.doc(id).update(teacherData);
-                    showToast('✅ Данные успешно обновлены!');
+                if (els.idField.value) {
+                    await teachersCollection.doc(els.idField.value).update(formData);
+                    showToast('✅ Обновлено');
                 } else {
-                    await teachersCollection.add(teacherData);
-                    showToast('✅ Преподаватель успешно добавлен!');
+                    await teachersCollection.add(formData);
+                    showToast('✅ Добавлено');
                 }
                 resetForm();
-            } catch (error) {
-                console.error("Ошибка при сохранении данных: ", error);
-                showToast('❌ Ошибка! Не удалось сохранить данные.', 'error');
-            }
+            } catch (error) { showToast('❌ Ошибка', 'error'); }
         });
+
+        const renderTeachers = () => {
+            // Убрали orderBy, чтобы показывались старые записи
+            teachersCollection.onSnapshot(snapshot => {
+                els.list.innerHTML = "";
+                els.countBadge.innerText = snapshot.size;
+
+                if (snapshot.empty) {
+                    els.list.innerHTML = `<p class="text-center text-gray-500 py-8">Пусто</p>`;
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const t = doc.data();
+                    // Если данных нет, пишем заглушку или пустую строку
+                    const deptText = t.department || ""; 
+                    const posText = t.position || "";
+
+                    const card = document.createElement("div");
+                    card.className = 'glass-card p-4 rounded-xl flex gap-4 items-start hover:bg-white hover:bg-opacity-5 transition';
+                    card.innerHTML = `
+                        <img src="${t.image}" class="w-16 h-16 rounded-lg object-cover border border-blue-500 bg-black">
+                        <div class="flex-grow">
+                            <h3 class="font-bold text-lg text-white">${t.name}</h3>
+                            <p class="text-sm text-blue-400">${posText}</p>
+                            <p class="text-xs text-gray-500">${deptText}</p>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="editTeacher('${doc.id}')" class="btn btn-sm bg-yellow-500 bg-opacity-20 text-yellow-300 border-yellow-500">Edit</button>
+                            <button onclick="deleteTeacher('${doc.id}')" class="btn btn-sm btn-danger">Del</button>
+                        </div>
+                    `;
+                    els.list.appendChild(card);
+                });
+            });
+        };
 
         window.editTeacher = async (id) => {
             const doc = await teachersCollection.doc(id).get();
             if (!doc.exists) return;
-            
-            const teacher = doc.data();
-            teacherIdField.value = id;
-            document.getElementById("name").value = teacher.name;
-            document.getElementById("position").value = teacher.position;
-            document.getElementById("department").value = teacher.department;
-            document.getElementById("image-url").value = teacher.image;
-            document.getElementById("phone").value = teacher.phone;
-            
-            formTitle.textContent = "Редактировать данные";
-            submitButtonText.textContent = "Обновить";
-            cancelButton.style.display = 'inline-flex';
-            submitButton.classList.add('w-1/2');
-            submitButton.classList.remove('w-full');
-            
+            const t = doc.data();
+
+            els.idField.value = id;
+            document.getElementById("name").value = t.name || "";
+            document.getElementById("position").value = t.position || "";
+            els.deptSelect.value = t.department || "";
+            document.getElementById("image-url").value = t.image || "";
+            document.getElementById("phone").value = t.phone || "";
+
+            els.customFieldsContainer.innerHTML = '';
+            if(t.customFields) t.customFields.forEach(f => addCustomFieldDOM(f.label, f.value));
+
+            els.submitBtn.innerHTML = "Обновить";
+            els.cancelBtn.classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        window.deleteTeacher = async (id) => {
-            if (confirm("Вы уверены, что хотите удалить этого преподавателя?")) {
-                try {
-                    await teachersCollection.doc(id).delete();
-                    showToast('🗑️ Запись успешно удалена!');
-                } catch (error) {
-                    console.error("Ошибка при удалении: ", error);
-                    showToast('❌ Ошибка! Не удалось удалить запись.', 'error');
-                }
-            }
-        };
+        window.deleteTeacher = async (id) => confirm("Удалить?") && await teachersCollection.doc(id).delete();
+        els.cancelBtn.addEventListener('click', resetForm);
 
-        cancelButton.addEventListener('click', resetForm);
-
-        // Initial render
+        loadDepartments();
         renderTeachers();
+
     </script>
 </body>
 </html>
